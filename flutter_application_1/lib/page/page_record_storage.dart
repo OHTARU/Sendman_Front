@@ -1,20 +1,20 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/app_bar.dart';
+import 'package:flutter_application_1/page/app_bar.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class FileApp extends StatefulWidget {
-  const FileApp({super.key});
+class RecordStorage extends StatefulWidget {
+  const RecordStorage({super.key});
 
   @override
   State<StatefulWidget> createState() {
-    return _FileApp();
+    return _RecordStorage();
   }
 }
 
-class _FileApp extends State<FileApp> {
+class _RecordStorage extends State<RecordStorage> {
   List<String> itemList = List.empty(growable: true);
   TextEditingController controller = TextEditingController();
 

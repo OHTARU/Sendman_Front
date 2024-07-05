@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/app_bar.dart';
+import 'package:flutter_application_1/page/app_bar.dart';
+import 'package:flutter_application_1/page/page_tts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
 import 'dart:async';
-import 'file_app.dart';
+import 'page/page_record_storage.dart';
 
 const List<String> scopes = <String>[
   'email',
@@ -22,7 +23,7 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
 void main() {
   runApp(
     const MaterialApp(
-      title: '구글 로그인',
+      title: '구글 로그',
       home: SignInDemo(),
     ),
   );
@@ -214,33 +215,56 @@ class _SignInDemoState extends State<SignInDemo> {
             children: <Widget>[
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const FileApp()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const RecordStorage()));
                 },
                 child: const Text('텍스트파일저장 연습용'),
               ),
             ],
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              // fixedSize: const Size(0, 0),
-              elevation: 25,
-              shadowColor: Colors.black54,
-              backgroundColor: Colors.red,
-              iconColor: Colors.white,
-              surfaceTintColor: Colors.black,
-              foregroundColor: Colors.white54,
-              padding: const EdgeInsets.symmetric(horizontal: 42, vertical: 18),
-              alignment: const FractionalOffset(1, 1),
-              // shape: RoundedRectangleBorder(
-              //   borderRadius: BorderRadius.circular(100),
-              // )
-            ),
-            onPressed: _isRecording ? _stopRecording : _startRecording,
-            child: Icon(
-              _isRecording ? Icons.stop : Icons.mic,
-              size: 40,
-            ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const TextToSpeech()));
+                },
+                child: const Text('허은성 여기서 해'),
+              ),
+            ],
+          ),
+          Column(
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  // fixedSize: const Size(0, 0),
+                  elevation: 25,
+                  shadowColor: Colors.black54,
+                  backgroundColor: Colors.red,
+                  iconColor: Colors.white,
+                  surfaceTintColor: Colors.black,
+                  foregroundColor: Colors.white54,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 42, vertical: 18),
+                  alignment: const FractionalOffset(1, 1),
+
+                  // shape: RoundedRectangleBorder(
+                  //   borderRadius: BorderRadius.circular(100),
+                  // )
+                ),
+                onPressed: _isRecording ? _stopRecording : _startRecording,
+                child: Icon(
+                  _isRecording ? Icons.stop : Icons.mic,
+                  size: 40,
+                ),
+              ),
+            ],
           ),
           Container(
             color: footerMainColor2,

@@ -27,3 +27,5 @@ flutter:
   uses-material-design: true
   assets:
   - assets/txt_file1.txt
+  - assets/images/GoogleLoginLogo.jpg
+  - assets/images/GoogleLoginLogo.png
