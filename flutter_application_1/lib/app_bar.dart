@@ -17,14 +17,15 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: mainBlueColor,
-      // leading: IconButton(
-      //   icon: Image.asset(
-      //     "assets/images/ic_chevron_30_back.png",
-      //     width: 24,
-      //     height: 24,
-      //   ),
-      //   onPressed: () => Navigator.of(context).pop(),
-      // ),
+      leading: IconButton(
+        icon: const Icon(Icons.menu),
+        // icon: Image.asset(
+        //   "assets/images/ic_chevron_30_back.png",
+        //   width: 24,
+        //   height: 24,
+        // ),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
       centerTitle: center,
       title: Text(
         title,

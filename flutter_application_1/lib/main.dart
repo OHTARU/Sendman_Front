@@ -3,7 +3,7 @@ import 'package:flutter_application_1/app_bar.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
@@ -120,30 +120,40 @@ class _SignInDemoState extends State<SignInDemo> {
   }
 
   Future<void> _handleGetContact(GoogleSignInAccount user) async {
-    final http.Response response = await http.get(
-        Uri.parse('https://people.googleapis.com/v1/people/me/connections'
-            '?requestMask.includeField=person.names'),
-        headers: await user.authHeaders);
-    if (response.statusCode != 200) {
-      if (mounted) {
-        setState(() {
-          _contactText = 'People API gave a ${response.statusCode} '
-              'response. Check logs for details.';
-        });
-      }
+    Future<GoogleSignInAuthentication> googleAuth = user.authentication;
+    googleAuth.then((val) {
+      _contactText = val.accessToken.toString();
       if (kDebugMode) {
-        print('People API ${response.statusCode} response: ${response.body}');
+        print(val.accessToken.toString());
       }
-      return;
-    }
+    }).catchError((err) {
+      _contactText = err.toString();
+    });
+    // final http.Response response = await http.get(
+    //     Uri.parse('https://people.googleapis.com/v1/people/me/connections'
+    //         '?requestMask.includeField=person.names'),
+    //     headers: await user.authHeaders);
+    // if (response.statusCode != 200) {
+    //   if (mounted) {
+    //     setState(() {
+    //       _contactText = 'People API gave a ${response.statusCode} '
+    //           'response. Check logs for details.';
+    //     });
+    //   }
+    //   if (kDebugMode) {
+    //     print('People API ${response.statusCode} response: ${response.body}');
+    //   }
+    //   return;
+    // }
   }
 
   Future<void> _handleSignIn() async {
     try {
       await _googleSignIn.signIn();
+      // final GoogleSignInAuthentication googleSignInAuthentication = await _googleSignIn.currentUser!.authentication;
     } catch (error) {
       if (kDebugMode) {
-        print(error);
+        print('handleSingIn 에러 씨벌');
       }
     }
   }
@@ -214,6 +224,8 @@ class _SignInDemoState extends State<SignInDemo> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               // fixedSize: const Size(0, 0),
+              elevation: 25,
+              shadowColor: Colors.black54,
               backgroundColor: Colors.red,
               iconColor: Colors.white,
               surfaceTintColor: Colors.black,
