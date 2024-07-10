@@ -1,15 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/page/app_bar.dart';
 import 'package:flutter_application_1/page/page_tts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-// import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
 import 'dart:async';
 import 'page/page_record_storage.dart';
+import 'package:flutter_application_1/src/server_uri.dart';
 
 const List<String> scopes = <String>[
   'email',
@@ -17,6 +20,8 @@ const List<String> scopes = <String>[
 ];
 
 GoogleSignIn _googleSignIn = GoogleSignIn(
+  clientId:
+      '380369825003-pn4dcsi5l5hm3vtd7fn0ef11bjeqqtro.apps.googleusercontent.com',
   scopes: scopes,
 );
 
@@ -124,12 +129,24 @@ class _SignInDemoState extends State<SignInDemo> {
     Future<GoogleSignInAuthentication> googleAuth = user.authentication;
     googleAuth.then((val) {
       _contactText = val.accessToken.toString();
+
       if (kDebugMode) {
         print(val.accessToken.toString());
       }
     }).catchError((err) {
       _contactText = err.toString();
     });
+
+    final http.Response response = await http
+        .get(Uri.parse('$serverUri/login/google?code=${user.serverAuthCode}'));
+
+    if (response.statusCode >= 200 || response.statusCode < 300) {
+      var decodingJson =
+          jsonDecode(utf8.decode(response.bodyBytes))['accesstoken'];
+      if (kDebugMode) {
+        print("response : $decodingJson");
+      }
+    }
     // final http.Response response = await http.get(
     //     Uri.parse('https://people.googleapis.com/v1/people/me/connections'
     //         '?requestMask.includeField=person.names'),

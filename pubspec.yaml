@@ -9,14 +9,18 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+    # 녹음 권한
   permission_handler: ^10.0.0
   flutter_sound: ^9.1.8
   path_provider: ^2.0.2
   cupertino_icons: ^1.0.6
+  # 구글 로그인
   google_sign_in: ^6.2.1
   shared_preferences: ^2.1.0
   
   http: ^1.2.1
+
+  stop_watch_timer: ^1.3.1
 
 dev_dependencies:
   flutter_test:

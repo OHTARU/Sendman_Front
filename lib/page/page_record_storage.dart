@@ -34,61 +34,59 @@ class _RecordStorage extends State<RecordStorage> {
         title: '여긴 연습용',
         center: false,
       ),
-      body: Container(
-        child: Center(
-          child: Column(
-            children: <Widget>[
-              TextField(
-                controller: controller,
-                keyboardType: TextInputType.text,
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemBuilder: (context, index) {
-                    return Card(
-                      child: Center(
-                        child: Text(
-                          itemList[index],
-                          style: const TextStyle(fontSize: 30),
-                        ),
+      body: Center(
+        child: Column(
+          children: <Widget>[
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.text,
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: Center(
+                      child: Text(
+                        itemList[index],
+                        style: const TextStyle(fontSize: 30),
                       ),
-                    );
+                    ),
+                  );
+                },
+                itemCount: itemList.length,
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    if (kDebugMode) {
+                      print("추가된 텍스트: ${controller.text}");
+                    }
+                    writeTxt(controller.text);
+                    setState(() {
+                      itemList.add(controller.text);
+                    });
                   },
-                  itemCount: itemList.length,
+                  child: const Text('추가'),
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
+                const SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    deleteFileContents();
+                    setState(() {
+                      itemList.clear();
                       if (kDebugMode) {
-                        print("추가된 텍스트: ${controller.text}");
+                        print('데이터삭제');
                       }
-                      writeTxt(controller.text);
-                      setState(() {
-                        itemList.add(controller.text);
-                      });
-                    },
-                    child: const Text('추가'),
-                  ),
-                  const SizedBox(width: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      deleteFileContents();
-                      setState(() {
-                        itemList.clear();
-                        if (kDebugMode) {
-                          print('데이터삭제');
-                        }
-                      });
-                    },
-                    child: const Text('삭제'),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                    });
+                  },
+                  child: const Text('삭제'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
