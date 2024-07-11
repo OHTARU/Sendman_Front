@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace = "com.example.flutter_application_1"
-    compileSdkVersion flutter.compileSdkVersion.toInteger() // 수정된 부분
+    compileSdkVersion flutter.compileSdkVersion.toInteger() //33 직접 Int형 설정 오류 시 이 줄 먼저 수정. 또한, 높은 Android SDK 버전 요그
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -34,8 +34,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.flutter_application_1"
-        minSdkVersion flutter.minSdkVersion.toInteger() // 수정된 부분
-        targetSdkVersion flutter.targetSdkVersion.toInteger() // 수정된 부분
+        minSdkVersion 21
+        targetSdkVersion flutter.targetSdkVersion.toInteger() //33 오류시 이 줄 먼저 수정
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -56,6 +56,13 @@ android {
         }
     }
 }
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
 
 flutter {
     source = "../.."

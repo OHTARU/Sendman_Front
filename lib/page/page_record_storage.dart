@@ -31,7 +31,7 @@ class _RecordStorage extends State<RecordStorage> {
     return Scaffold(
       appBar: BaseAppBar(
         appBar: AppBar(),
-        title: '여긴 연습용',
+        title: '파일 저장',
         center: false,
       ),
       body: Center(
@@ -101,6 +101,7 @@ class _RecordStorage extends State<RecordStorage> {
     try {
       var dir = await getApplicationDocumentsDirectory();
       var file = await File('${dir.path}/txt_file1.txt').readAsString();
+      // var ex_file = await File('${dir.path}/file2.?').readAsLinesSync(); readAs로 String이나 Byte 및 Line만 가능
       if (kDebugMode) {
         print('읽어온 파일: $file');
       }

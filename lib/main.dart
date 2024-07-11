@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/page/app_bar.dart';
+import 'package:flutter_application_1/page/init_screen.dart';
 import 'package:flutter_application_1/page/page_tts.dart';
+import 'package:flutter_application_1/page/stopwatch.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -29,19 +31,20 @@ void main() {
   runApp(
     const MaterialApp(
       title: '구글 로그',
-      home: SignInDemo(),
+      debugShowCheckedModeBanner: false,
+      home: SendManDemo(),
     ),
   );
 }
 
-class SignInDemo extends StatefulWidget {
-  const SignInDemo({super.key});
+class SendManDemo extends StatefulWidget {
+  const SendManDemo({super.key});
 
   @override
-  State createState() => _SignInDemoState();
+  State createState() => _SendManDemoState();
 }
 
-class _SignInDemoState extends State<SignInDemo> {
+class _SendManDemoState extends State<SendManDemo> {
   GoogleSignInAccount? _currentUser;
   bool _isAuthorized = false;
   String _contactText = '';
@@ -52,6 +55,14 @@ class _SignInDemoState extends State<SignInDemo> {
   @override
   void initState() {
     super.initState();
+    //    현재 flutter native splash 사용으로 사용 안함
+    // Timer(const Duration(milliseconds: 1500), () {
+    //   Navigator.push(
+    //       context, MaterialPageRoute(builder: (context) => const InitScreen()));
+    //   Timer(const Duration(milliseconds: 1500), () {
+    //     Navigator.pop(context);
+    //   });
+    // });
     _recorder = FlutterSoundRecorder();
     _initializeRecorder();
 
@@ -77,8 +88,35 @@ class _SignInDemoState extends State<SignInDemo> {
     _googleSignIn.signInSilently();
   }
 
+  //서버 연결 예외 처리 코드
+  Future<void> _responseHttp(GoogleSignInAccount user) async {
+    try {
+      final http.Response response = await http.get(
+          Uri.parse('$serverUri/login/google?code=${user.serverAuthCode}'));
+
+      if (response.statusCode >= 200 || response.statusCode < 300) {
+        var decodingJson =
+            jsonDecode(utf8.decode(response.bodyBytes))['accesstoken'];
+        if (kDebugMode) {
+          print("response : $decodingJson");
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('씻팔 서버 안열림');
+      }
+    }
+  }
+
   void _initializeRecorder() async {
-    await Permission.microphone.request();
+    try {
+      await Permission.microphone.request();
+    } catch (e) {
+      if (kDebugMode) {
+        print('권한 받는도중 오류');
+      }
+    }
+
     await Permission.storage.request();
     await _recorder!.openRecorder();
   }
@@ -136,33 +174,19 @@ class _SignInDemoState extends State<SignInDemo> {
     }).catchError((err) {
       _contactText = err.toString();
     });
+    //서버 연결 예외처리 전
+    // final http.Response response = await http
+    //     .get(Uri.parse('$serverUri/login/google?code=${user.serverAuthCode}'));
 
-    final http.Response response = await http
-        .get(Uri.parse('$serverUri/login/google?code=${user.serverAuthCode}'));
-
-    if (response.statusCode >= 200 || response.statusCode < 300) {
-      var decodingJson =
-          jsonDecode(utf8.decode(response.bodyBytes))['accesstoken'];
-      if (kDebugMode) {
-        print("response : $decodingJson");
-      }
-    }
-    // final http.Response response = await http.get(
-    //     Uri.parse('https://people.googleapis.com/v1/people/me/connections'
-    //         '?requestMask.includeField=person.names'),
-    //     headers: await user.authHeaders);
-    // if (response.statusCode != 200) {
-    //   if (mounted) {
-    //     setState(() {
-    //       _contactText = 'People API gave a ${response.statusCode} '
-    //           'response. Check logs for details.';
-    //     });
-    //   }
+    // if (response.statusCode >= 200 || response.statusCode < 300) {
+    //   var decodingJson =
+    //       jsonDecode(utf8.decode(response.bodyBytes))['accesstoken'];
     //   if (kDebugMode) {
-    //     print('People API ${response.statusCode} response: ${response.body}');
+    //     print("response : $decodingJson");
     //   }
-    //   return;
     // }
+
+    _responseHttp(_currentUser!);
   }
 
   Future<void> _handleSignIn() async {
@@ -254,6 +278,20 @@ class _SignInDemoState extends State<SignInDemo> {
                 },
                 child: const Text('허은성 여기서 해'),
               ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const StopWatchPage()));
+                  },
+                  child: const Text('StopWatch페이지'))
             ],
           ),
           Column(

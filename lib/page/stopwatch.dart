@@ -5,17 +5,16 @@ class StopWatchPage extends StatefulWidget {
   const StopWatchPage({super.key});
 
   @override
-  _StopWatchPageState createState() => _StopWatchPageState();
+  StopWatchPageState createState() => StopWatchPageState();
 
-  // GlobalKey를 이용해 상태에 접근할 수 있는 메서드 추가
-  static _StopWatchPageState? of(BuildContext context) {
-    final _StopWatchPageState? state =
-        context.findAncestorStateOfType<_StopWatchPageState>();
+  static StopWatchPageState? of(BuildContext context) {
+    final StopWatchPageState? state =
+        context.findAncestorStateOfType<StopWatchPageState>();
     return state;
   }
 }
 
-class _StopWatchPageState extends State<StopWatchPage> {
+class StopWatchPageState extends State<StopWatchPage> {
   var _icon = Icons.play_arrow;
   var _color = Colors.amber;
 
