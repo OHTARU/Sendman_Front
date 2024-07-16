@@ -2,9 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/page/app_bar.dart';
-import 'package:flutter_application_1/page/init_screen.dart';
+//import 'package:flutter_application_1/page/init_screen.dart';
 import 'package:flutter_application_1/page/page_tts.dart';
-import 'package:flutter_application_1/page/stopwatch.dart';
+import 'package:flutter_application_1/page/stop_watch_v2.dart';
+//import 'package:flutter_application_1/page/stopwatch.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -265,6 +266,8 @@ class _SendManDemoState extends State<SendManDemo> {
               ),
             ],
           ),
+          //Swatch 위젯 사용
+          const Center(child: Swatch()),
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,7 +292,8 @@ class _SendManDemoState extends State<SendManDemo> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const StopWatchPage()));
+                            builder: (context) =>
+                                const StopWatchV2())); //StopWatchPage()));
                   },
                   child: const Text('StopWatch페이지'))
             ],
