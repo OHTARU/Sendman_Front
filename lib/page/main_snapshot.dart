@@ -4,6 +4,7 @@ import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/page/app_bar.dart';
 import 'package:flutter_application_1/page/page_record_storage.dart';
 import 'package:flutter_application_1/page/page_tts.dart';
+// ignore: unused_import
 import 'package:flutter_application_1/page/swatch.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -13,7 +14,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
 import 'dart:async';
 import 'package:flutter_application_1/src/server_uri.dart';
-import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 const List<String> scopes = <String>[
   'email',
@@ -52,9 +52,6 @@ class _SendManDemoState extends State<SendManDemo> {
   FlutterSoundRecorder? _recorder;
   bool _isRecording = false;
 
-  final StopWatchTimer _stopWatchTimer = StopWatchTimer();
-  final bool _isMinutes = true;
-
   @override
   void initState() {
     super.initState();
@@ -88,7 +85,7 @@ class _SendManDemoState extends State<SendManDemo> {
         Uri.parse('$serverUri/login/google?code=${user.serverAuthCode}'),
       );
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (response.statusCode >= 200 || response.statusCode < 300) {
         var decodingJson =
             jsonDecode(utf8.decode(response.bodyBytes))['accesstoken'];
         if (kDebugMode) {
@@ -97,7 +94,7 @@ class _SendManDemoState extends State<SendManDemo> {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('서버 오류');
+        print('씻팔 서버 안열림');
         print(e);
       }
     }
@@ -110,7 +107,7 @@ class _SendManDemoState extends State<SendManDemo> {
       await _recorder!.openRecorder();
     } catch (e) {
       if (kDebugMode) {
-        print('권한 요청 중 오류: $e');
+        print('권한 받는 도중 오류: $e');
       }
     }
   }
@@ -126,11 +123,9 @@ class _SendManDemoState extends State<SendManDemo> {
       if (kDebugMode) {
         print("녹음 시작");
       }
-      _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
-      _stopWatchTimer.onExecute.add(StopWatchExecute.start);
     } catch (e) {
       if (kDebugMode) {
-        print("녹음 시작 오류: $e");
+        print("시작 안되노 씨발아: $e");
       }
     }
   }
@@ -146,10 +141,9 @@ class _SendManDemoState extends State<SendManDemo> {
       if (kDebugMode) {
         print("녹음 중지");
       }
-      _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
     } catch (e) {
       if (kDebugMode) {
-        print("녹음 중지 오류: $e");
+        print("녹음중지 에러씨발 $e");
       }
     }
   }
@@ -157,7 +151,6 @@ class _SendManDemoState extends State<SendManDemo> {
   @override
   void dispose() {
     _recorder!.closeRecorder();
-    _stopWatchTimer.dispose();
     super.dispose();
   }
 
@@ -181,7 +174,7 @@ class _SendManDemoState extends State<SendManDemo> {
       await _googleSignIn.signIn();
     } catch (error) {
       if (kDebugMode) {
-        print('로그인 오류');
+        print('handleSingIn 에러 씨벌');
       }
     }
   }
@@ -207,7 +200,6 @@ class _SendManDemoState extends State<SendManDemo> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Expanded(
-            flex: 0,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
@@ -217,7 +209,6 @@ class _SendManDemoState extends State<SendManDemo> {
                   subtitle: Text(user.email),
                 ),
                 if (_isAuthorized) ...<Widget>[
-                  // 액세스 토큰
                   // Text(_contactText),
                 ],
                 if (!_isAuthorized) ...<Widget>[
@@ -238,10 +229,6 @@ class _SendManDemoState extends State<SendManDemo> {
                 ),
               ],
             ),
-          ),
-          Swatch(
-            stopWatchTimer: _stopWatchTimer,
-            isMinutes: _isMinutes,
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -280,6 +267,7 @@ class _SendManDemoState extends State<SendManDemo> {
             children: [
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
+                  // fixedSize: const Size(0, 0),
                   elevation: 25,
                   shadowColor: Colors.black54,
                   backgroundColor: Colors.red,
@@ -289,6 +277,10 @@ class _SendManDemoState extends State<SendManDemo> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 42, vertical: 18),
                   alignment: const FractionalOffset(1, 1),
+
+                  // shape: RoundedRectangleBorder(
+                  //   borderRadius: BorderRadius.circular(100),
+                  // )
                 ),
                 onPressed: _isRecording ? _stopRecording : _startRecording,
                 child: Icon(
@@ -297,6 +289,16 @@ class _SendManDemoState extends State<SendManDemo> {
                 ),
               ),
             ],
+          ),
+          Container(
+            color: footerMainColor2,
+            width: double.infinity,
+            padding: const EdgeInsets.all(16.0),
+            child: const Text(
+              '바닥',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: appBarTextColor, fontSize: 16),
+            ),
           ),
         ],
       );
@@ -308,7 +310,7 @@ class _SendManDemoState extends State<SendManDemo> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                const Text('로그인 안됨'),
+                const Text('로그인 안됐음'),
                 buildSignInButton(onPressed: _handleSignIn),
               ],
             ),
@@ -319,6 +321,16 @@ class _SendManDemoState extends State<SendManDemo> {
             child: ElevatedButton(
               onPressed: _isRecording ? _stopRecording : _startRecording,
               child: Text(_isRecording ? '녹음 중지' : '녹음 시작'),
+            ),
+          ),
+          Container(
+            color: footerMainColor2,
+            width: double.infinity,
+            padding: const EdgeInsets.all(17.0),
+            child: const Text(
+              'Footer',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: appBarTextColor, fontSize: 16),
             ),
           ),
         ],
@@ -337,16 +349,6 @@ class _SendManDemoState extends State<SendManDemo> {
       body: ConstrainedBox(
         constraints: const BoxConstraints.expand(),
         child: _buildBody(),
-      ),
-      bottomNavigationBar: Container(
-        color: footerMainColor2,
-        width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
-        child: const Text(
-          '바닥',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: appBarTextColor, fontSize: 16),
-        ),
       ),
     );
   }
