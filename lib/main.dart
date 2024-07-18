@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/page/app_bar.dart';
@@ -14,6 +15,8 @@ import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
 import 'dart:async';
 import 'package:flutter_application_1/src/server_uri.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:path_provider/path_provider.dart';
+//import 'dart:io';
 
 const List<String> scopes = <String>[
   'email',
@@ -47,15 +50,16 @@ class _SendManDemoState extends State<SendManDemo> {
   GoogleSignInAccount? _currentUser;
   bool _isAuthorized = false;
   // ignore: unused_field
-  String _contactText = '';
+  String _tokenText = '';
 
   FlutterSoundRecorder? _recorder;
   bool _isRecording = false;
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer();
   final bool _isMinutes = true;
-
+  late final File file;
   @override
+  //초기 데이터 로드, 컨트롤러 초기화
   void initState() {
     super.initState();
     _recorder = FlutterSoundRecorder();
@@ -75,13 +79,14 @@ class _SendManDemoState extends State<SendManDemo> {
       }
 
       if (isAuthorized) {
-        unawaited(_handleGetContact(account!));
+        unawaited(_getAccessToken(account!));
       }
     });
 
     _googleSignIn.signInSilently();
   }
 
+  //http통신 유저 Auth코드 가져오기
   Future<void> _responseHttp(GoogleSignInAccount user) async {
     try {
       final http.Response response = await http.get(
@@ -103,6 +108,7 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
+  //녹음 초기화 마이크, 저장소 등 권한 요청
   void _initializeRecorder() async {
     try {
       await Permission.microphone.request();
@@ -115,29 +121,39 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
+  //녹음파일 저장 경로
+  Future<String> _getFilePath() async {
+    final directory = await getExternalStorageDirectory();
+    int audioNum = 0;
+    //음성 녹음파일 audioNum +1,
+
+    return '${directory!.path}/audio$audioNum.aac';
+  }
+
+  //녹음 시작
   void _startRecording() async {
     try {
-      await _recorder!.startRecorder(toFile: 'audio.aac');
+      final filePath = await _getFilePath();
+      await _recorder!.startRecorder(toFile: filePath);
       if (mounted) {
         setState(() {
           _isRecording = true;
         });
       }
-      if (kDebugMode) {
-        print("녹음 시작");
-      }
+      print("녹음 시작");
+      print(filePath.toString());
       _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
       _stopWatchTimer.onExecute.add(StopWatchExecute.start);
     } catch (e) {
-      if (kDebugMode) {
-        print("녹음 시작 오류: $e");
-      }
+      print("녹음 시작 오류: $e");
     }
   }
 
+  //녹움 즁지
   void _stopRecording() async {
     try {
-      await _recorder!.stopRecorder();
+      final filePath = await _recorder!.stopRecorder();
+
       if (mounted) {
         setState(() {
           _isRecording = false;
@@ -145,7 +161,10 @@ class _SendManDemoState extends State<SendManDemo> {
       }
       if (kDebugMode) {
         print("녹음 중지");
+        print("저장된 파일 경로: \n $filePath");
       }
+      // file = File(filePath.toString());
+      // print(file.toString());
       _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
     } catch (e) {
       if (kDebugMode) {
@@ -161,16 +180,17 @@ class _SendManDemoState extends State<SendManDemo> {
     super.dispose();
   }
 
-  Future<void> _handleGetContact(GoogleSignInAccount user) async {
+  // 구글 AccessToken toString으로 가져옴
+  Future<void> _getAccessToken(GoogleSignInAccount user) async {
     try {
       final GoogleSignInAuthentication googleAuth = await user.authentication;
-      _contactText = googleAuth.accessToken.toString();
+      _tokenText = googleAuth.accessToken.toString();
 
       if (kDebugMode) {
         print(googleAuth.accessToken.toString());
       }
     } catch (err) {
-      _contactText = err.toString();
+      _tokenText = err.toString();
     }
 
     _responseHttp(_currentUser!);
@@ -194,7 +214,7 @@ class _SendManDemoState extends State<SendManDemo> {
       });
     }
     if (isAuthorized) {
-      unawaited(_handleGetContact(_currentUser!));
+      unawaited(_getAccessToken(_currentUser!));
     }
   }
 

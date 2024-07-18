@@ -11,9 +11,11 @@ dependencies:
     sdk: flutter
   
   cupertino_icons: ^1.0.6
-  # 녹음 권한
+  # 권한 요청
   permission_handler: ^10.0.0
-  flutter_sound: ^9.1.8
+  #녹음
+  flutter_sound: ^9.7.2
+  #해당경로 저장
   path_provider: ^2.0.2
   # 구글 로그인
   google_sign_in: ^6.2.1

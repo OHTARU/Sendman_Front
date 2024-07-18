@@ -146,26 +146,26 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_sound
-      sha256: "1f40b26b92907a433afe877c927cd48f5a2e4d0f7188e5d39eb5756008aa51ab"
+      sha256: "2fbc050cffb8aaad0a414d9b4547e98c72c5d6c40b60876b8106ddc2fdcedadf"
       url: "https://pub.dev"
     source: hosted
-    version: "9.6.0"
+    version: "9.7.2"
   flutter_sound_platform_interface:
     dependency: transitive
     description:
       name: flutter_sound_platform_interface
-      sha256: "2e218521d8187b9a4c65063ad9c79bfe88119531ff68047a2eaa6b027cb276bb"
+      sha256: "6b24e33067966dfa229701f8c7ed61ce2ea5fdd50f48f9f1fb700bfc24933dfe"
       url: "https://pub.dev"
     source: hosted
-    version: "9.6.0"
+    version: "9.7.2"
   flutter_sound_web:
     dependency: transitive
     description:
       name: flutter_sound_web
-      sha256: "5013a15e4e69a4bdc8badd729130eef43c3305e30ba8e6933f863436ce969932"
+      sha256: "0ec61f4aef3dbef54b12605968d6269bcc673091b1165e6bd6f5136ec5e27ebb"
       url: "https://pub.dev"
     source: hosted
-    version: "9.6.0"
+    version: "9.7.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -268,10 +268,10 @@ packages:
     dependency: transitive
     description:
       name: js
-      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
+      sha256: c1b2e9b5ea78c45e1a0788d29606ba27dc5f71f019f32ca5140f61ef071838cf
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.7"
+    version: "0.7.1"
   leak_tracker:
     dependency: transitive
     description:
