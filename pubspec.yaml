@@ -10,6 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   
+  #날짜 및 시간 포맷팅
+  intl: ^0.19.0
+  #아이콘
   cupertino_icons: ^1.0.6
   # 권한 요청
   permission_handler: ^10.0.0

@@ -16,6 +16,7 @@ import 'dart:async';
 import 'package:flutter_application_1/src/server_uri.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:intl/intl.dart';
 //import 'dart:io';
 
 const List<String> scopes = <String>[
@@ -124,19 +125,20 @@ class _SendManDemoState extends State<SendManDemo> {
   //녹음파일 저장 경로
   Future<String> _getFilePath() async {
     final directory = await getExternalStorageDirectory();
-
     String returnPath;
-    bool fileExists;
+    //저장 파일 이름 날짜로 변경
+    final formatter = DateFormat('yyyyMMdd_HHmmss');
+    final String timestamp = formatter.format(DateTime.now());
+    returnPath = '${directory!.path}/$timestamp.aac';
 
-    do {
-      returnPath = '${directory!.path}/audio$audioNum.aac';
-      fileExists = await File(returnPath).exists();
-
-      //음성 녹음파일 audioNum +1,
-      if (fileExists) {
-        audioNum++;
-      }
-    } while (fileExists);
+    // bool fileExists;
+    // do {
+    //   fileExists = await File(returnPath).exists();
+    //   //음성 녹음파일 audioNum +1,
+    //   if (fileExists) {
+    //     audioNum++;
+    //   }
+    // } while (fileExists);
 
     return returnPath;
   }
