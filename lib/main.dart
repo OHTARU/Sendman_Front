@@ -54,7 +54,7 @@ class _SendManDemoState extends State<SendManDemo> {
 
   FlutterSoundRecorder? _recorder;
   bool _isRecording = false;
-
+  int audioNum = 0;
   final StopWatchTimer _stopWatchTimer = StopWatchTimer();
   final bool _isMinutes = true;
   late final File file;
@@ -124,10 +124,21 @@ class _SendManDemoState extends State<SendManDemo> {
   //녹음파일 저장 경로
   Future<String> _getFilePath() async {
     final directory = await getExternalStorageDirectory();
-    int audioNum = 0;
-    //음성 녹음파일 audioNum +1,
 
-    return '${directory!.path}/audio$audioNum.aac';
+    String returnPath;
+    bool fileExists;
+
+    do {
+      returnPath = '${directory!.path}/audio$audioNum.aac';
+      fileExists = await File(returnPath).exists();
+
+      //음성 녹음파일 audioNum +1,
+      if (fileExists) {
+        audioNum++;
+      }
+    } while (fileExists);
+
+    return returnPath;
   }
 
   //녹음 시작
@@ -159,10 +170,9 @@ class _SendManDemoState extends State<SendManDemo> {
           _isRecording = false;
         });
       }
-      if (kDebugMode) {
-        print("녹음 중지");
-        print("저장된 파일 경로: \n $filePath");
-      }
+      print("녹음 중지");
+      print("저장된 파일 경로: \n $filePath");
+
       // file = File(filePath.toString());
       // print(file.toString());
       _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
