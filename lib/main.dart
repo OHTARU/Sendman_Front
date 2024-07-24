@@ -5,6 +5,7 @@ import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/page/app_bar.dart';
 import 'package:flutter_application_1/page/page_record_storage.dart';
 import 'package:flutter_application_1/page/page_tts.dart';
+import 'package:flutter_application_1/page/photo_to_text.dart';
 import 'package:flutter_application_1/page/swatch.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -16,7 +17,8 @@ import 'dart:async';
 import 'package:flutter_application_1/src/server_uri.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:path_provider/path_provider.dart';
-//import 'dart:io';
+
+
 
 const List<String> scopes = <String>[
   'email',
@@ -31,12 +33,21 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
 
 void main() {
   runApp(
-    const MaterialApp(
+    const MyApp(),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
       title: '구글 로그',
       debugShowCheckedModeBanner: false,
-      home: SendManDemo(),
-    ),
-  );
+      home: const SendManDemo(),
+    );
+  }
 }
 
 class SendManDemo extends StatefulWidget {
@@ -58,8 +69,9 @@ class _SendManDemoState extends State<SendManDemo> {
   final StopWatchTimer _stopWatchTimer = StopWatchTimer();
   final bool _isMinutes = true;
   late final File file;
+
   @override
-  //초기 데이터 로드, 컨트롤러 초기화
+  // 초기 데이터 로드, 컨트롤러 초기화
   void initState() {
     super.initState();
     _recorder = FlutterSoundRecorder();
@@ -86,7 +98,7 @@ class _SendManDemoState extends State<SendManDemo> {
     _googleSignIn.signInSilently();
   }
 
-  //http통신 유저 Auth코드 가져오기
+  // http통신 유저 Auth코드 가져오기
   Future<void> _responseHttp(GoogleSignInAccount user) async {
     try {
       final http.Response response = await http.get(
@@ -108,7 +120,7 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
-  //녹음 초기화 마이크, 저장소 등 권한 요청
+  // 녹음 초기화 마이크, 저장소 등 권한 요청
   void _initializeRecorder() async {
     try {
       await Permission.microphone.request();
@@ -121,16 +133,16 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
-  //녹음파일 저장 경로
+  // 녹음파일 저장 경로
   Future<String> _getFilePath() async {
     final directory = await getExternalStorageDirectory();
     int audioNum = 0;
-    //음성 녹음파일 audioNum +1,
+    // 음성 녹음파일 audioNum +1,
 
     return '${directory!.path}/audio$audioNum.aac';
   }
 
-  //녹음 시작
+  // 녹음 시작
   void _startRecording() async {
     try {
       final filePath = await _getFilePath();
@@ -149,7 +161,7 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
-  //녹움 즁지
+  // 녹음 중지
   void _stopRecording() async {
     try {
       final filePath = await _recorder!.stopRecorder();
@@ -347,26 +359,107 @@ class _SendManDemoState extends State<SendManDemo> {
   }
 
   @override
+         
+@override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: BaseAppBar(
-        appBar: AppBar(),
-        title: '메인 앱바',
-        center: true,
+      appBar: AppBar(
+        title: const Text('메인 앱바'),
+        
       ),
-      body: ConstrainedBox(
-        constraints: const BoxConstraints.expand(),
-        child: _buildBody(),
-      ),
-      bottomNavigationBar: Container(
-        color: footerMainColor2,
-        width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
-        child: const Text(
-          '바닥',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: appBarTextColor, fontSize: 16),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                '메뉴',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('홈'),
+              onTap: () {
+                Navigator.pop(context);
+                // Optionally reset to the home page or do nothing
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.save),
+              title: const Text('텍스트 파일 저장 연습용'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RecordStorage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.record_voice_over),
+              title: const Text('텍스트 음성 변환'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const TextToSpeech(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_camera),
+              title: const Text('사진에서 텍스트 추출'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PhotoToText()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('로그아웃'),
+              onTap: () {
+                Navigator.pop(context);
+                // 로그아웃 처리 로직 구현 필요
+              },
+            ),
+          ],
         ),
+      ),
+      body: _buildBody(),
+      bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
+
+  Future<Widget> _buildBodys() async {
+    // 홈 화면 본문 내용
+    return Center(
+      child: Text('메인 화면 콘텐츠'),
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return Container(
+      color: footerMainColor2,
+      width: double.infinity,
+      padding: const EdgeInsets.all(16.0),
+      child: const Text(
+        '바닥',
+        textAlign: TextAlign.center,
+        style: TextStyle(color: appBarTextColor, fontSize: 16),
       ),
     );
   }
