@@ -1,23 +1,21 @@
-import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/colors/colors.dart';
-import 'package:flutter_application_1/page/app_bar.dart';
-import 'package:flutter_application_1/page/page_record_storage.dart';
-import 'package:flutter_application_1/page/page_tts.dart';
-import 'package:flutter_application_1/page/swatch.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_sound/flutter_sound.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
-import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
-import 'dart:async';
-import 'package:flutter_application_1/src/server_uri.dart';
-import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:intl/intl.dart';
-//import 'dart:io';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:flutter_application_1/page/swatch.dart';
+import 'package:flutter_application_1/page/app_bar.dart';
+import 'package:flutter_application_1/colors/colors.dart';
+import 'package:flutter_application_1/page/page_tts.dart';
+import 'package:flutter_application_1/src/server_uri.dart';
+import 'package:flutter_application_1/page/page_record_storage.dart';
+import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 const List<String> scopes = <String>[
   'email',
@@ -97,15 +95,13 @@ class _SendManDemoState extends State<SendManDemo> {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         var decodingJson =
             jsonDecode(utf8.decode(response.bodyBytes))['accesstoken'];
-        if (kDebugMode) {
-          print("response : $decodingJson");
-        }
+        print("response : $decodingJson");
+      } else {
+        print('response 에러 : ${response.statusCode}');
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('서버 오류');
-        print(e);
-      }
+      print('서버 오류?');
+      print(e);
     }
   }
 
@@ -122,14 +118,56 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
+  //파일 업로드 함수
+  Future<void> uploadFile(String filePath) async {
+    try {
+      //서버 업로드 uri
+      var uri = Uri.parse(serverUri);
+      var request = http.MultipartRequest('POST', uri);
+
+      request.files.add(await http.MultipartFile.fromPath(
+        'file', //서버에서 파라미터명 확인
+        filePath,
+        //contentType: MediaType('audio', 'aac'),
+      ));
+
+      //요청
+      var response = await request.send();
+
+      //응답
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        print('파일 전송 성공');
+      } else {
+        print('파일 전송 ㅆㅂ ${response.statusCode}');
+      }
+    } catch (e) {
+      print('뭔 에러;; $e');
+    }
+  }
+
   //녹음파일 저장 경로
   Future<String> _getFilePath() async {
     final directory = await getExternalStorageDirectory();
-    String returnPath;
+
+    String fileName = DateTime.now()
+        .toString()
+        .replaceAll(':', '')
+        .replaceAll('-', '')
+        .replaceAll(' ', '_')
+        .substring(0, 15);
+    String returnFilePath = '${directory!.path}/$fileName.aac';
+
+//파일 기본 형식 년월일시분 => if 같은 년월일시분 존재시 초 추가
+    File file = File(returnFilePath);
+    if (await file.exists()) {
+      String seconds = DateTime.now().second.toString().padLeft(2, '0');
+      fileName = '${fileName}_$seconds';
+      returnFilePath = '${directory.path}/$fileName.aac';
+    }
     //저장 파일 이름 날짜로 변경
-    final formatter = DateFormat('yyyyMMdd_HHmmss');
-    final String timestamp = formatter.format(DateTime.now());
-    returnPath = '${directory!.path}/$timestamp.aac';
+    //final formatter = DateFormat('yyyyMMdd_HHmmss');
+    //final String timestamp = formatter.format(DateTime.now());
+    //returnPath = '${directory!.path}/$timestamp.aac';
 
     // bool fileExists;
     // do {
@@ -140,7 +178,7 @@ class _SendManDemoState extends State<SendManDemo> {
     //   }
     // } while (fileExists);
 
-    return returnPath;
+    return returnFilePath;
   }
 
   //녹음 시작
@@ -174,6 +212,9 @@ class _SendManDemoState extends State<SendManDemo> {
       }
       print("녹음 중지");
       print("저장된 파일 경로: \n $filePath");
+
+      //업로드 파일
+      await uploadFile(filePath!);
 
       // file = File(filePath.toString());
       // print(file.toString());

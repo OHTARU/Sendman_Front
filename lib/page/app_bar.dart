@@ -18,6 +18,7 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: mainBlueColor,
       leading: IconButton(
+        color: Colors.white,
         icon: const Icon(Icons.menu),
         // icon: Image.asset(
         //   "assets/images/ic_chevron_30_back.png",
