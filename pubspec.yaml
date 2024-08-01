@@ -30,6 +30,7 @@ dependencies:
   stop_watch_timer: ^1.3.1
   #TTS라이브러리
   flutter_tts: ^4.0.2
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:

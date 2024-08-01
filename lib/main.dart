@@ -17,6 +17,7 @@ import 'package:flutter_application_1/page/page_record_storage.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_application_1/page/splash_screen.dart';
+import 'package:flutter_application_1/page/photo_to_text.dart';
 
 const List<String> scopes = <String>[
   'email',
@@ -293,6 +294,23 @@ class _SendManDemoState extends State<SendManDemo> {
                 },
                 child: const Text('텍스트 파일 저장 연습용'),
               ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PhotoToText(),
+                    ),
+                  );
+                },
+                child: const Text('PTT'),
+              )
             ],
           ),
           Column(
