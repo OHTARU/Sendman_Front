@@ -43,8 +43,9 @@ flutter:
   - assets/txt_file1.txt
   - assets/images/GoogleLoginLogo.jpg
   - assets/images/GoogleLoginLogo.png
-  - assets/images/initLogo.png
+  - assets/images/InitLogo.png
   - assets/images/ExampleLogo.png
+
 
 flutter_native_splash:
   color: "#274C77"

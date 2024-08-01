@@ -16,13 +16,14 @@ import 'package:flutter_application_1/src/server_uri.dart';
 import 'package:flutter_application_1/page/page_record_storage.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_application_1/page/splash_screen.dart';
 
 const List<String> scopes = <String>[
   'email',
   'profile',
 ];
 
-GoogleSignIn _googleSignIn = GoogleSignIn(
+GoogleSignIn googleSignIn = GoogleSignIn(
   clientId:
       '380369825003-pn4dcsi5l5hm3vtd7fn0ef11bjeqqtro.apps.googleusercontent.com',
   scopes: scopes,
@@ -31,61 +32,46 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
 void main() {
   runApp(
     const MaterialApp(
-      title: '구글 로그',
-      debugShowCheckedModeBanner: false,
-      home: SendManDemo(),
+      home: SplashScreen(),
     ),
   );
 }
 
 class SendManDemo extends StatefulWidget {
-  const SendManDemo({super.key});
+  final bool state;
+  final GoogleSignInAccount account;
+  const SendManDemo({super.key, required this.state, required this.account});
 
   @override
-  State createState() => _SendManDemoState();
+  State<SendManDemo> createState() => _SendManDemoState();
 }
 
 class _SendManDemoState extends State<SendManDemo> {
+  late bool state;
   GoogleSignInAccount? _currentUser;
   bool _isAuthorized = false;
   // ignore: unused_field
   String _tokenText = '';
-
+  String accessTokenBearer = '';
   FlutterSoundRecorder? _recorder;
   bool _isRecording = false;
   int audioNum = 0;
   final StopWatchTimer _stopWatchTimer = StopWatchTimer();
   final bool _isMinutes = true;
   late final File file;
+
   @override
-  //초기 데이터 로드, 컨트롤러 초기화
   void initState() {
     super.initState();
+    state = widget.state;
+    _currentUser = widget.account;
+    _isAuthorized = state;
     _recorder = FlutterSoundRecorder();
     _initializeRecorder();
-
-    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-      bool isAuthorized = account != null;
-      if (kIsWeb && account != null) {
-        isAuthorized = _googleSignIn.canAccessScopes(scopes) as bool;
-      }
-
-      if (mounted) {
-        setState(() {
-          _currentUser = account;
-          _isAuthorized = isAuthorized;
-        });
-      }
-
-      if (isAuthorized) {
-        unawaited(_getAccessToken(account!));
-      }
-    });
-
-    _googleSignIn.signInSilently();
+    print('이닛');
+    print(_isAuthorized);
   }
 
-  //http통신 유저 Auth코드 가져오기
   Future<void> _responseHttp(GoogleSignInAccount user) async {
     try {
       final http.Response response = await http.get(
@@ -93,19 +79,25 @@ class _SendManDemoState extends State<SendManDemo> {
       );
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        var decodingJson =
-            jsonDecode(utf8.decode(response.bodyBytes))['accesstoken'];
-        print("response : $decodingJson");
+        var decodedJson = jsonDecode(utf8.decode(response.bodyBytes));
+
+        if (decodedJson != null && decodedJson['data'] != null) {
+          String accessToken = decodedJson['data']['accesstoken'];
+          print(
+              "response : ${response.statusCode} | decodingJson : $accessToken");
+          accessTokenBearer = accessToken;
+        } else {
+          print("Error: 'data' key not found in the JSON response.");
+        }
       } else {
-        print('response 에러 : ${response.statusCode}');
+        print('response? : ${response.statusCode}');
       }
     } catch (e) {
       print('서버 오류?');
-      print(e);
+      print('어떤 오류가 기다릴까? $e');
     }
   }
 
-  //녹음 초기화 마이크, 저장소 등 권한 요청
   void _initializeRecorder() async {
     try {
       await Permission.microphone.request();
@@ -118,37 +110,34 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
-  //파일 업로드 함수
   Future<void> uploadFile(String filePath) async {
     try {
-      //서버 업로드 uri
-      var uri = Uri.parse(serverUri);
-      var request = http.MultipartRequest('POST', uri);
+      var uri = Uri.parse('$serverUri/stt/save');
+      Map<String, String> headers = {
+        "Authorization": "Bearer ${accessTokenBearer.toString()}"
+      };
+      print(accessTokenBearer.toString());
+      var request = http.MultipartRequest('POST', uri)..headers.addAll(headers);
 
       request.files.add(await http.MultipartFile.fromPath(
-        'file', //서버에서 파라미터명 확인
+        'file',
         filePath,
-        //contentType: MediaType('audio', 'aac'),
       ));
 
-      //요청
       var response = await request.send();
 
-      //응답
       if (response.statusCode >= 200 && response.statusCode < 300) {
         print('파일 전송 성공');
       } else {
-        print('파일 전송 ㅆㅂ ${response.statusCode}');
+        print('파일 전송 실패, 응답 코드: ${response.statusCode}');
       }
     } catch (e) {
-      print('뭔 에러;; $e');
+      print('오류 발생: $e');
     }
   }
 
-  //녹음파일 저장 경로
   Future<String> _getFilePath() async {
     final directory = await getExternalStorageDirectory();
-
     String fileName = DateTime.now()
         .toString()
         .replaceAll(':', '')
@@ -157,31 +146,15 @@ class _SendManDemoState extends State<SendManDemo> {
         .substring(0, 15);
     String returnFilePath = '${directory!.path}/$fileName.aac';
 
-//파일 기본 형식 년월일시분 => if 같은 년월일시분 존재시 초 추가
     File file = File(returnFilePath);
     if (await file.exists()) {
       String seconds = DateTime.now().second.toString().padLeft(2, '0');
       fileName = '${fileName}_$seconds';
       returnFilePath = '${directory.path}/$fileName.aac';
     }
-    //저장 파일 이름 날짜로 변경
-    //final formatter = DateFormat('yyyyMMdd_HHmmss');
-    //final String timestamp = formatter.format(DateTime.now());
-    //returnPath = '${directory!.path}/$timestamp.aac';
-
-    // bool fileExists;
-    // do {
-    //   fileExists = await File(returnPath).exists();
-    //   //음성 녹음파일 audioNum +1,
-    //   if (fileExists) {
-    //     audioNum++;
-    //   }
-    // } while (fileExists);
-
     return returnFilePath;
   }
 
-  //녹음 시작
   void _startRecording() async {
     try {
       final filePath = await _getFilePath();
@@ -200,7 +173,6 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
-  //녹움 즁지
   void _stopRecording() async {
     try {
       final filePath = await _recorder!.stopRecorder();
@@ -213,11 +185,7 @@ class _SendManDemoState extends State<SendManDemo> {
       print("녹음 중지");
       print("저장된 파일 경로: \n $filePath");
 
-      //업로드 파일
       await uploadFile(filePath!);
-
-      // file = File(filePath.toString());
-      // print(file.toString());
       _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
     } catch (e) {
       if (kDebugMode) {
@@ -233,17 +201,13 @@ class _SendManDemoState extends State<SendManDemo> {
     super.dispose();
   }
 
-  // 구글 AccessToken toString으로 가져옴
   Future<void> _getAccessToken(GoogleSignInAccount user) async {
     try {
       final GoogleSignInAuthentication googleAuth = await user.authentication;
       _tokenText = googleAuth.accessToken.toString();
-
-      if (kDebugMode) {
-        print(googleAuth.accessToken.toString());
-      }
-    } catch (err) {
-      _tokenText = err.toString();
+      print('_getAccessToken() 액세스 토큰 : ${googleAuth.accessToken.toString()}');
+    } catch (e) {
+      _tokenText = e.toString();
     }
 
     _responseHttp(_currentUser!);
@@ -251,7 +215,8 @@ class _SendManDemoState extends State<SendManDemo> {
 
   Future<void> _handleSignIn() async {
     try {
-      await _googleSignIn.signIn();
+      await googleSignIn.signIn();
+      print('로그인중');
     } catch (error) {
       if (kDebugMode) {
         print('로그인 오류');
@@ -260,9 +225,10 @@ class _SendManDemoState extends State<SendManDemo> {
   }
 
   Future<void> _handleAuthorizeScopes() async {
-    final bool isAuthorized = await _googleSignIn.requestScopes(scopes);
+    final bool isAuthorized = await googleSignIn.requestScopes(scopes);
     if (mounted) {
       setState(() {
+        print('SetState');
         _isAuthorized = isAuthorized;
       });
     }
@@ -271,7 +237,7 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
-  Future<void> _handleSignOut() => _googleSignIn.disconnect();
+  Future<void> _handleSignOut() => googleSignIn.disconnect();
 
   Widget _buildBody() {
     final GoogleSignInAccount? user = _currentUser;
@@ -289,10 +255,7 @@ class _SendManDemoState extends State<SendManDemo> {
                   title: Text(user.displayName ?? ''),
                   subtitle: Text(user.email),
                 ),
-                if (_isAuthorized) ...<Widget>[
-                  // 액세스 토큰
-                  // Text(_contactText),
-                ],
+                if (_isAuthorized) ...<Widget>[],
                 if (!_isAuthorized) ...<Widget>[
                   const Text('읽기 접근 권한 필요'),
                   ElevatedButton(
