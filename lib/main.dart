@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/page/photo_to_text.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -354,6 +355,22 @@ class _SendManDemoState extends State<SendManDemo> {
                   );
                 },
                 child: const Text('텍스트 파일 저장 연습용'),
+              ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PhotoToText(),
+                    ),
+                  );
+                },
+                child: const Text('PTS'),
               ),
             ],
           ),
