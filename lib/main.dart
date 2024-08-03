@@ -16,39 +16,39 @@ import 'package:flutter_application_1/src/server_uri.dart';
 import 'package:flutter_application_1/page/page_record_storage.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_application_1/page/splash_screen.dart';
-import 'package:flutter_application_1/page/photo_to_text.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 const List<String> scopes = <String>[
   'email',
   'profile',
 ];
 
-GoogleSignIn googleSignIn = GoogleSignIn(
+GoogleSignIn _googleSignIn = GoogleSignIn(
   clientId:
       '380369825003-pn4dcsi5l5hm3vtd7fn0ef11bjeqqtro.apps.googleusercontent.com',
   scopes: scopes,
 );
 
 void main() {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(
     const MaterialApp(
-      home: SplashScreen(),
+      title: '구글 로그',
+      debugShowCheckedModeBanner: false,
+      home: SendManDemo(),
     ),
   );
 }
 
 class SendManDemo extends StatefulWidget {
-  final bool state;
-  final GoogleSignInAccount account;
-  const SendManDemo({super.key, required this.state, required this.account});
+  const SendManDemo({super.key});
 
   @override
-  State<SendManDemo> createState() => _SendManDemoState();
+  State createState() => _SendManDemoState();
 }
 
 class _SendManDemoState extends State<SendManDemo> {
-  late bool state;
   GoogleSignInAccount? _currentUser;
   bool _isAuthorized = false;
   // ignore: unused_field
@@ -60,19 +60,47 @@ class _SendManDemoState extends State<SendManDemo> {
   final StopWatchTimer _stopWatchTimer = StopWatchTimer();
   final bool _isMinutes = true;
   late final File file;
-
   @override
+  //초기 데이터 로드, 컨트롤러 초기화
   void initState() {
     super.initState();
-    state = widget.state;
-    _currentUser = widget.account;
-    _isAuthorized = state;
+    initialization();
     _recorder = FlutterSoundRecorder();
     _initializeRecorder();
-    print('이닛');
-    print(_isAuthorized);
+
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+      bool isAuthorized = account != null;
+      if (kIsWeb && account != null) {
+        isAuthorized = _googleSignIn.canAccessScopes(scopes) as bool;
+      }
+
+      if (mounted) {
+        setState(() {
+          _currentUser = account;
+          _isAuthorized = isAuthorized;
+        });
+      }
+
+      if (isAuthorized) {
+        unawaited(_getAccessToken(account!));
+      }
+    });
+
+    _googleSignIn.signInSilently();
   }
 
+  void initialization() async {
+    print('ready in 3...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 2...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 1...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('go!');
+    FlutterNativeSplash.remove();
+  }
+
+  //http통신 유저 Auth코드 가져오기
   Future<void> _responseHttp(GoogleSignInAccount user) async {
     try {
       final http.Response response = await http.get(
@@ -99,6 +127,7 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
+  //녹음 초기화 마이크, 저장소 등 권한 요청
   void _initializeRecorder() async {
     try {
       await Permission.microphone.request();
@@ -111,22 +140,29 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
+  //파일 업로드 함수
+
   Future<void> uploadFile(String filePath) async {
     try {
+      // 서버 업로드 URI
       var uri = Uri.parse('$serverUri/stt/save');
       Map<String, String> headers = {
         "Authorization": "Bearer ${accessTokenBearer.toString()}"
       };
       print(accessTokenBearer.toString());
+      //맵으로 header추가
       var request = http.MultipartRequest('POST', uri)..headers.addAll(headers);
 
       request.files.add(await http.MultipartFile.fromPath(
-        'file',
+        'file', // 서버에서 파라미터명 확인
         filePath,
+        // contentType: MediaType('audio', 'aac'),
       ));
 
+      // 요청
       var response = await request.send();
 
+      // 응답
       if (response.statusCode >= 200 && response.statusCode < 300) {
         print('파일 전송 성공');
       } else {
@@ -137,8 +173,10 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
+  //녹음파일 저장 경로
   Future<String> _getFilePath() async {
     final directory = await getExternalStorageDirectory();
+
     String fileName = DateTime.now()
         .toString()
         .replaceAll(':', '')
@@ -147,15 +185,31 @@ class _SendManDemoState extends State<SendManDemo> {
         .substring(0, 15);
     String returnFilePath = '${directory!.path}/$fileName.aac';
 
+//파일 기본 형식 년월일시분 => if 같은 년월일시분 존재시 초 추가
     File file = File(returnFilePath);
     if (await file.exists()) {
       String seconds = DateTime.now().second.toString().padLeft(2, '0');
       fileName = '${fileName}_$seconds';
       returnFilePath = '${directory.path}/$fileName.aac';
     }
+    //저장 파일 이름 날짜로 변경
+    //final formatter = DateFormat('yyyyMMdd_HHmmss');
+    //final String timestamp = formatter.format(DateTime.now());
+    //returnPath = '${directory!.path}/$timestamp.aac';
+
+    // bool fileExists;
+    // do {
+    //   fileExists = await File(returnPath).exists();
+    //   //음성 녹음파일 audioNum +1,
+    //   if (fileExists) {
+    //     audioNum++;
+    //   }
+    // } while (fileExists);
+
     return returnFilePath;
   }
 
+  //녹음 시작
   void _startRecording() async {
     try {
       final filePath = await _getFilePath();
@@ -174,6 +228,7 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
+  //녹움 즁지
   void _stopRecording() async {
     try {
       final filePath = await _recorder!.stopRecorder();
@@ -186,7 +241,11 @@ class _SendManDemoState extends State<SendManDemo> {
       print("녹음 중지");
       print("저장된 파일 경로: \n $filePath");
 
+      //업로드 파일
       await uploadFile(filePath!);
+
+      // file = File(filePath.toString());
+      // print(file.toString());
       _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
     } catch (e) {
       if (kDebugMode) {
@@ -202,6 +261,7 @@ class _SendManDemoState extends State<SendManDemo> {
     super.dispose();
   }
 
+  // 구글 AccessToken toString으로 가져옴
   Future<void> _getAccessToken(GoogleSignInAccount user) async {
     try {
       final GoogleSignInAuthentication googleAuth = await user.authentication;
@@ -216,8 +276,7 @@ class _SendManDemoState extends State<SendManDemo> {
 
   Future<void> _handleSignIn() async {
     try {
-      await googleSignIn.signIn();
-      print('로그인중');
+      await _googleSignIn.signIn();
     } catch (error) {
       if (kDebugMode) {
         print('로그인 오류');
@@ -226,10 +285,9 @@ class _SendManDemoState extends State<SendManDemo> {
   }
 
   Future<void> _handleAuthorizeScopes() async {
-    final bool isAuthorized = await googleSignIn.requestScopes(scopes);
+    final bool isAuthorized = await _googleSignIn.requestScopes(scopes);
     if (mounted) {
       setState(() {
-        print('SetState');
         _isAuthorized = isAuthorized;
       });
     }
@@ -238,7 +296,7 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
-  Future<void> _handleSignOut() => googleSignIn.disconnect();
+  Future<void> _handleSignOut() => _googleSignIn.disconnect();
 
   Widget _buildBody() {
     final GoogleSignInAccount? user = _currentUser;
@@ -256,7 +314,10 @@ class _SendManDemoState extends State<SendManDemo> {
                   title: Text(user.displayName ?? ''),
                   subtitle: Text(user.email),
                 ),
-                if (_isAuthorized) ...<Widget>[],
+                if (_isAuthorized) ...<Widget>[
+                  // 액세스 토큰
+                  // Text(_contactText),
+                ],
                 if (!_isAuthorized) ...<Widget>[
                   const Text('읽기 접근 권한 필요'),
                   ElevatedButton(
@@ -294,23 +355,6 @@ class _SendManDemoState extends State<SendManDemo> {
                 },
                 child: const Text('텍스트 파일 저장 연습용'),
               ),
-            ],
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PhotoToText(),
-                    ),
-                  );
-                },
-                child: const Text('PTT'),
-              )
             ],
           ),
           Column(
