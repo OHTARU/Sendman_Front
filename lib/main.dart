@@ -1,8 +1,10 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/page/photo_to_text.dart';
+import 'package:flutter_application_1/page/stt_list.dart';
+import 'package:flutter_application_1/page/tts_list.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -14,7 +16,7 @@ import 'package:flutter_application_1/page/app_bar.dart';
 import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/page/page_tts.dart';
 import 'package:flutter_application_1/src/server_uri.dart';
-import 'package:flutter_application_1/page/page_record_storage.dart';
+import 'package:flutter_application_1/page/token_storage.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -31,8 +33,8 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
 );
 
 void main() {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(
     const MaterialApp(
       title: '구글 로그',
@@ -116,6 +118,7 @@ class _SendManDemoState extends State<SendManDemo> {
           print(
               "response : ${response.statusCode} | decodingJson : $accessToken");
           accessTokenBearer = accessToken;
+          await writeToken(accessToken);
         } else {
           print("Error: 'data' key not found in the JSON response.");
         }
@@ -125,6 +128,16 @@ class _SendManDemoState extends State<SendManDemo> {
     } catch (e) {
       print('서버 오류?');
       print('어떤 오류가 기다릴까? $e');
+    }
+  }
+
+  Future<void> writeToken(String token) async {
+    try {
+      var dir = await getApplicationDocumentsDirectory();
+      await File('${dir.path}/token.txt').writeAsString(token);
+      print('토큰 저장 완료: $token');
+    } catch (e) {
+      print('토큰 저장 오류: $e');
     }
   }
 
@@ -141,10 +154,27 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
-  //파일 업로드 함수
+  Future<String> readToken() async {
+    try {
+      var dir = await getApplicationDocumentsDirectory();
+      var file = await File('${dir.path}/token.txt').readAsString();
+      print('읽어온 토큰 : $file');
+      return file;
+    } catch (e) {
+      print('토큰 읽기 실패하심~ㅋㅋ $e');
+      return '';
+    }
+  }
 
+  //파일 업로드 함수
   Future<void> uploadFile(String filePath) async {
     try {
+      var accessTokenBearer = await readToken();
+      if (accessTokenBearer.isEmpty) {
+        print('노 토큰');
+        return;
+      }
+
       // 서버 업로드 URI
       var uri = Uri.parse('$serverUri/stt/save');
       Map<String, String> headers = {
@@ -350,11 +380,43 @@ class _SendManDemoState extends State<SendManDemo> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const RecordStorage(),
+                      builder: (context) => const TokenStorage(),
                     ),
                   );
                 },
                 child: const Text('텍스트 파일 저장 연습용'),
+              ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Ttslist(),
+                    ),
+                  );
+                },
+                child: const Text('TTSLIST'),
+              ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Sttlist(),
+                    ),
+                  );
+                },
+                child: const Text('STTLIST'),
               ),
             ],
           ),

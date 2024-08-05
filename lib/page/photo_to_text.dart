@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -9,10 +11,10 @@ class PhotoToText extends StatefulWidget {
   const PhotoToText({super.key});
 
   @override
-  _PhotoToTextState createState() => _PhotoToTextState();
+  PhotoToTextState createState() => PhotoToTextState();
 }
 
-class _PhotoToTextState extends State<PhotoToText> {
+class PhotoToTextState extends State<PhotoToText> {
   final ImagePicker _picker = ImagePicker();
   String? _extractedText;
 
