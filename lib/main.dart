@@ -1,22 +1,23 @@
 import 'dart:async';
 import 'dart:convert';
+//import 'dart:ffi';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/page/photo_to_text.dart';
-import 'package:flutter_application_1/page/stt_list.dart';
-import 'package:flutter_application_1/page/tts_list.dart';
+import 'package:flutter_application_1/pages/photo_to_text.dart';
+import 'package:flutter_application_1/pages/stt_list.dart';
+import 'package:flutter_application_1/pages/tts_list.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
-import 'package:flutter_application_1/page/swatch.dart';
-import 'package:flutter_application_1/page/app_bar.dart';
+import 'package:flutter_application_1/pages/swatch.dart';
+import 'package:flutter_application_1/pages/app_bar.dart';
 import 'package:flutter_application_1/colors/colors.dart';
-import 'package:flutter_application_1/page/page_tts.dart';
+import 'package:flutter_application_1/pages/page_tts.dart';
 import 'package:flutter_application_1/src/server_uri.dart';
-import 'package:flutter_application_1/page/token_storage.dart';
+import 'package:flutter_application_1/pages/token_storage.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -356,6 +357,45 @@ class _SendManDemoState extends State<SendManDemo> {
                     child: const Text('승인 요청'),
                   ),
                 ],
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(boxShadow: [
+                        BoxShadow(
+                            color: Colors.black,
+                            spreadRadius: 5,
+                            blurRadius: 7,
+                            offset: Offset(0, 3))
+                      ]),
+                      child: TextButton(
+                        onPressed: () {
+                          showModalBottomSheet<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return const SizedBox(
+                                  height: 200,
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        Text('바텀 모달'),
+                                        Text('???')
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              });
+                        },
+                        child: const Text(
+                          'Text - Speech',
+                        ),
+                      ),
+                    )
+                  ],
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
