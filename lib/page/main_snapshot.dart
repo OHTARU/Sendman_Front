@@ -1,19 +1,25 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/colors/colors.dart';
-import 'package:flutter_application_1/page/app_bar.dart';
-import 'package:flutter_application_1/page/token_storage.dart';
-import 'package:flutter_application_1/page/page_tts.dart';
-// ignore: unused_import
-import 'package:flutter_application_1/page/swatch.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_sound/flutter_sound.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_application_1/page/photo_to_text.dart';
+import 'package:flutter_application_1/page/stt_list.dart';
+import 'package:flutter_application_1/page/tts_list.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
-import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
-import 'dart:async';
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:flutter_application_1/page/swatch.dart';
+import 'package:flutter_application_1/page/app_bar.dart';
+import 'package:flutter_application_1/colors/colors.dart';
+import 'package:flutter_application_1/page/page_tts.dart';
 import 'package:flutter_application_1/src/server_uri.dart';
+import 'package:flutter_application_1/page/token_storage.dart';
+import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 const List<String> scopes = <String>[
   'email',
@@ -27,6 +33,8 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
 );
 
 void main() {
+  // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(
     const MaterialApp(
       title: '구글 로그',
@@ -47,14 +55,19 @@ class _SendManDemoState extends State<SendManDemo> {
   GoogleSignInAccount? _currentUser;
   bool _isAuthorized = false;
   // ignore: unused_field
-  String _contactText = '';
-
+  String _tokenText = '';
+  String accessTokenBearer = '';
   FlutterSoundRecorder? _recorder;
   bool _isRecording = false;
-
+  int audioNum = 0;
+  final StopWatchTimer _stopWatchTimer = StopWatchTimer();
+  final bool _isMinutes = true;
+  late final File file;
   @override
+  //초기 데이터 로드, 컨트롤러 초기화
   void initState() {
     super.initState();
+    initialization();
     _recorder = FlutterSoundRecorder();
     _initializeRecorder();
 
@@ -72,34 +85,63 @@ class _SendManDemoState extends State<SendManDemo> {
       }
 
       if (isAuthorized) {
-        unawaited(_handleGetContact(account!));
+        unawaited(_getAccessToken(account!));
       }
     });
 
     _googleSignIn.signInSilently();
   }
 
+  void initialization() async {
+    print('ready in 3...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 2...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 1...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('go!');
+    FlutterNativeSplash.remove();
+  }
+
+  //http통신 유저 Auth코드 가져오기
   Future<void> _responseHttp(GoogleSignInAccount user) async {
     try {
       final http.Response response = await http.get(
         Uri.parse('$serverUri/login/google?code=${user.serverAuthCode}'),
       );
 
-      if (response.statusCode >= 200 || response.statusCode < 300) {
-        var decodingJson =
-            jsonDecode(utf8.decode(response.bodyBytes))['accesstoken'];
-        if (kDebugMode) {
-          print("response : $decodingJson");
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        var decodedJson = jsonDecode(utf8.decode(response.bodyBytes));
+
+        if (decodedJson != null && decodedJson['data'] != null) {
+          String accessToken = decodedJson['data']['accesstoken'];
+          print(
+              "response : ${response.statusCode} | decodingJson : $accessToken");
+          accessTokenBearer = accessToken;
+          await writeToken(accessToken);
+        } else {
+          print("Error: 'data' key not found in the JSON response.");
         }
+      } else {
+        print('response? : ${response.statusCode}');
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('씻팔 서버 안열림');
-        print(e);
-      }
+      print('서버 오류?');
+      print('어떤 오류가 기다릴까? $e');
     }
   }
 
+  Future<void> writeToken(String token) async {
+    try {
+      var dir = await getApplicationDocumentsDirectory();
+      await File('${dir.path}/token.txt').writeAsString(token);
+      print('토큰 저장 완료: $token');
+    } catch (e) {
+      print('토큰 저장 오류: $e');
+    }
+  }
+
+  //녹음 초기화 마이크, 저장소 등 권한 요청
   void _initializeRecorder() async {
     try {
       await Permission.microphone.request();
@@ -107,43 +149,138 @@ class _SendManDemoState extends State<SendManDemo> {
       await _recorder!.openRecorder();
     } catch (e) {
       if (kDebugMode) {
-        print('권한 받는 도중 오류: $e');
+        print('권한 요청 중 오류: $e');
       }
     }
   }
 
+  Future<String> readToken() async {
+    try {
+      var dir = await getApplicationDocumentsDirectory();
+      var file = await File('${dir.path}/token.txt').readAsString();
+      print('읽어온 토큰 : $file');
+      return file;
+    } catch (e) {
+      print('토큰 읽기 실패하심~ㅋㅋ $e');
+      return '';
+    }
+  }
+
+  //파일 업로드 함수
+  Future<void> uploadFile(String filePath) async {
+    try {
+      var accessTokenBearer = await readToken();
+      if (accessTokenBearer.isEmpty) {
+        print('노 토큰');
+        return;
+      }
+
+      // 서버 업로드 URI
+      var uri = Uri.parse('$serverUri/stt/save');
+      Map<String, String> headers = {
+        "Authorization": "Bearer ${accessTokenBearer.toString()}"
+      };
+      print(accessTokenBearer.toString());
+      //맵으로 header추가
+      var request = http.MultipartRequest('POST', uri)..headers.addAll(headers);
+
+      request.files.add(await http.MultipartFile.fromPath(
+        'file', // 서버에서 파라미터명 확인
+        filePath,
+        // contentType: MediaType('audio', 'aac'),
+      ));
+
+      // 요청
+      var response = await request.send();
+
+      // 응답
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        print('파일 전송 성공');
+      } else {
+        print('파일 전송 실패, 응답 코드: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+    }
+  }
+
+  //녹음파일 저장 경로
+  Future<String> _getFilePath() async {
+    final directory = await getExternalStorageDirectory();
+
+    String fileName = DateTime.now()
+        .toString()
+        .replaceAll(':', '')
+        .replaceAll('-', '')
+        .replaceAll(' ', '_')
+        .substring(0, 15);
+    String returnFilePath = '${directory!.path}/$fileName.aac';
+
+//파일 기본 형식 년월일시분 => if 같은 년월일시분 존재시 초 추가
+    File file = File(returnFilePath);
+    if (await file.exists()) {
+      String seconds = DateTime.now().second.toString().padLeft(2, '0');
+      fileName = '${fileName}_$seconds';
+      returnFilePath = '${directory.path}/$fileName.aac';
+    }
+    //저장 파일 이름 날짜로 변경
+    //final formatter = DateFormat('yyyyMMdd_HHmmss');
+    //final String timestamp = formatter.format(DateTime.now());
+    //returnPath = '${directory!.path}/$timestamp.aac';
+
+    // bool fileExists;
+    // do {
+    //   fileExists = await File(returnPath).exists();
+    //   //음성 녹음파일 audioNum +1,
+    //   if (fileExists) {
+    //     audioNum++;
+    //   }
+    // } while (fileExists);
+
+    return returnFilePath;
+  }
+
+  //녹음 시작
   void _startRecording() async {
     try {
-      await _recorder!.startRecorder(toFile: 'audio.aac');
+      final filePath = await _getFilePath();
+      await _recorder!.startRecorder(toFile: filePath);
       if (mounted) {
         setState(() {
           _isRecording = true;
         });
       }
-      if (kDebugMode) {
-        print("녹음 시작");
-      }
+      print("녹음 시작");
+      print(filePath.toString());
+      _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+      _stopWatchTimer.onExecute.add(StopWatchExecute.start);
     } catch (e) {
-      if (kDebugMode) {
-        print("시작 안되노 씨발아: $e");
-      }
+      print("녹음 시작 오류: $e");
     }
   }
 
+  //녹움 즁지
   void _stopRecording() async {
     try {
-      await _recorder!.stopRecorder();
+      final filePath = await _recorder!.stopRecorder();
+
       if (mounted) {
         setState(() {
           _isRecording = false;
         });
       }
-      if (kDebugMode) {
-        print("녹음 중지");
-      }
+      print("녹음 중지");
+      print("저장된 파일 경로: \n $filePath");
+
+      //업로드 파일
+      await uploadFile(filePath!);
+
+      // file = File(filePath.toString());
+      // print(file.toString());
+      _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
     } catch (e) {
       if (kDebugMode) {
-        print("녹음중지 에러씨발 $e");
+        print("녹음 중지 오류: $e");
       }
     }
   }
@@ -151,19 +288,18 @@ class _SendManDemoState extends State<SendManDemo> {
   @override
   void dispose() {
     _recorder!.closeRecorder();
+    _stopWatchTimer.dispose();
     super.dispose();
   }
 
-  Future<void> _handleGetContact(GoogleSignInAccount user) async {
+  // 구글 AccessToken toString으로 가져옴
+  Future<void> _getAccessToken(GoogleSignInAccount user) async {
     try {
       final GoogleSignInAuthentication googleAuth = await user.authentication;
-      _contactText = googleAuth.accessToken.toString();
-
-      if (kDebugMode) {
-        print(googleAuth.accessToken.toString());
-      }
-    } catch (err) {
-      _contactText = err.toString();
+      _tokenText = googleAuth.accessToken.toString();
+      print('_getAccessToken() 액세스 토큰 : ${googleAuth.accessToken.toString()}');
+    } catch (e) {
+      _tokenText = e.toString();
     }
 
     _responseHttp(_currentUser!);
@@ -174,7 +310,7 @@ class _SendManDemoState extends State<SendManDemo> {
       await _googleSignIn.signIn();
     } catch (error) {
       if (kDebugMode) {
-        print('handleSingIn 에러 씨벌');
+        print('로그인 오류');
       }
     }
   }
@@ -187,7 +323,7 @@ class _SendManDemoState extends State<SendManDemo> {
       });
     }
     if (isAuthorized) {
-      unawaited(_handleGetContact(_currentUser!));
+      unawaited(_getAccessToken(_currentUser!));
     }
   }
 
@@ -200,6 +336,7 @@ class _SendManDemoState extends State<SendManDemo> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Expanded(
+            flex: 0,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
@@ -209,6 +346,7 @@ class _SendManDemoState extends State<SendManDemo> {
                   subtitle: Text(user.email),
                 ),
                 if (_isAuthorized) ...<Widget>[
+                  // 액세스 토큰
                   // Text(_contactText),
                 ],
                 if (!_isAuthorized) ...<Widget>[
@@ -230,6 +368,10 @@ class _SendManDemoState extends State<SendManDemo> {
               ],
             ),
           ),
+          Swatch(
+            stopWatchTimer: _stopWatchTimer,
+            isMinutes: _isMinutes,
+          ),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -238,11 +380,59 @@ class _SendManDemoState extends State<SendManDemo> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const RecordStorage(),
+                      builder: (context) => const TokenStorage(),
                     ),
                   );
                 },
                 child: const Text('텍스트 파일 저장 연습용'),
+              ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Ttslist(),
+                    ),
+                  );
+                },
+                child: const Text('TTSLIST'),
+              ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Sttlist(),
+                    ),
+                  );
+                },
+                child: const Text('STTLIST'),
+              ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PhotoToText(),
+                    ),
+                  );
+                },
+                child: const Text('PTS'),
               ),
             ],
           ),
@@ -267,7 +457,6 @@ class _SendManDemoState extends State<SendManDemo> {
             children: [
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  // fixedSize: const Size(0, 0),
                   elevation: 25,
                   shadowColor: Colors.black54,
                   backgroundColor: Colors.red,
@@ -277,10 +466,6 @@ class _SendManDemoState extends State<SendManDemo> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 42, vertical: 18),
                   alignment: const FractionalOffset(1, 1),
-
-                  // shape: RoundedRectangleBorder(
-                  //   borderRadius: BorderRadius.circular(100),
-                  // )
                 ),
                 onPressed: _isRecording ? _stopRecording : _startRecording,
                 child: Icon(
@@ -289,16 +474,6 @@ class _SendManDemoState extends State<SendManDemo> {
                 ),
               ),
             ],
-          ),
-          Container(
-            color: footerMainColor2,
-            width: double.infinity,
-            padding: const EdgeInsets.all(16.0),
-            child: const Text(
-              '바닥',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: appBarTextColor, fontSize: 16),
-            ),
           ),
         ],
       );
@@ -310,7 +485,7 @@ class _SendManDemoState extends State<SendManDemo> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                const Text('로그인 안됐음'),
+                const Text('로그인 안됨'),
                 buildSignInButton(onPressed: _handleSignIn),
               ],
             ),
@@ -321,16 +496,6 @@ class _SendManDemoState extends State<SendManDemo> {
             child: ElevatedButton(
               onPressed: _isRecording ? _stopRecording : _startRecording,
               child: Text(_isRecording ? '녹음 중지' : '녹음 시작'),
-            ),
-          ),
-          Container(
-            color: footerMainColor2,
-            width: double.infinity,
-            padding: const EdgeInsets.all(17.0),
-            child: const Text(
-              'Footer',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: appBarTextColor, fontSize: 16),
             ),
           ),
         ],
@@ -349,6 +514,16 @@ class _SendManDemoState extends State<SendManDemo> {
       body: ConstrainedBox(
         constraints: const BoxConstraints.expand(),
         child: _buildBody(),
+      ),
+      bottomNavigationBar: Container(
+        color: footerMainColor2,
+        width: double.infinity,
+        padding: const EdgeInsets.all(16.0),
+        child: const Text(
+          '바닥',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: appBarTextColor, fontSize: 16),
+        ),
       ),
     );
   }
