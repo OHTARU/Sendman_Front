@@ -47,6 +47,8 @@ flutter:
   uses-material-design: true
   assets:
   - assets/txt_file1.txt
+  - assets/images/
+  - assets/images/SendManLogo.png
   - assets/images/GoogleLoginLogo.jpg
   - assets/images/GoogleLoginLogo.png
   - assets/images/InitLogo.png
@@ -55,5 +57,5 @@ flutter:
 
 flutter_native_splash:
   color: "#274C77"
-  image: assets/images/InitLogo.png
+  image: assets/images/SendManLogo.png
   android: true
