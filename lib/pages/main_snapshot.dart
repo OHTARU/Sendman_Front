@@ -508,7 +508,6 @@ class _SendManDemoState extends State<SendManDemo> {
     return Scaffold(
       appBar: BaseAppBar(
         appBar: AppBar(),
-        title: '메인 앱바',
         center: true,
       ),
       body: ConstrainedBox(

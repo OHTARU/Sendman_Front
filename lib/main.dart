@@ -3,6 +3,7 @@ import 'dart:convert';
 //import 'dart:ffi';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/drawer.dart';
 import 'package:flutter_application_1/pages/photo_to_text.dart';
 import 'package:flutter_application_1/pages/stt_list.dart';
 import 'package:flutter_application_1/pages/tts_list.dart';
@@ -47,7 +48,6 @@ void main() {
 
 class SendManDemo extends StatefulWidget {
   const SendManDemo({super.key});
-
   @override
   State createState() => _SendManDemoState();
 }
@@ -330,8 +330,8 @@ class _SendManDemoState extends State<SendManDemo> {
 
   Future<void> _handleSignOut() => _googleSignIn.disconnect();
 
-  Widget _buildBody() {
-    final GoogleSignInAccount? user = _currentUser;
+  Widget _buildBody(GoogleSignInAccount? user) {
+
     if (user != null) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -341,11 +341,6 @@ class _SendManDemoState extends State<SendManDemo> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                ListTile(
-                  leading: GoogleUserCircleAvatar(identity: user),
-                  title: Text(user.displayName ?? ''),
-                  subtitle: Text(user.email),
-                ),
                 if (_isAuthorized) ...<Widget>[
                   // 액세스 토큰
                   // Text(_contactText),
@@ -545,16 +540,17 @@ class _SendManDemoState extends State<SendManDemo> {
 
   @override
   Widget build(BuildContext context) {
+    GoogleSignInAccount? user = _currentUser;
     return Scaffold(
       appBar: BaseAppBar(
         appBar: AppBar(),
-        title: '메인 앱바',
         center: true,
       ),
       body: ConstrainedBox(
         constraints: const BoxConstraints.expand(),
-        child: _buildBody(),
+        child: _buildBody(user),
       ),
+      drawer: BaseDrawer(drawer: const Drawer(), user: user),
       bottomNavigationBar: Container(
         color: footerMainColor2,
         width: double.infinity,
