@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
 // import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/app_bar.dart';
+import 'package:flutter_application_1/pages/drawer.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'stt_post_dto.dart';
 //import 'tts_post_dto.dart';
@@ -35,13 +39,22 @@ class SttListState extends State<SttList> {
 
   @override
   void initState() {
+    _requestPermissions();
     _pagingController.addPageRequestListener((pageKey) {
       //페이지를 가져오는 리스너
       _fetchPage(pageKey);
     });
     super.initState();
   }
-
+  //저장 권한 받기
+  void _requestPermissions() async {
+    final status = await Permission.storage.request();
+    if (status.isGranted) {
+      print("Permission granted");
+    } else {
+      print("Permission denied");
+    }
+  }
   @override
   void dispose() {
     _pagingController.dispose();
@@ -74,7 +87,6 @@ class SttListState extends State<SttList> {
         if (response.bodyBytes.isNotEmpty) {
           Map<String, dynamic> responseList2 =
               jsonDecode(utf8.decode(response.bodyBytes));
-          print('여기 오는가? : ${responseList2.toString()}');
 
           var result = SttPostsList.fromJson(responseList2['data']);
 
@@ -106,18 +118,9 @@ class SttListState extends State<SttList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        //AppBar
-        title: const Text("무한 스크롤 STT"),
-        titleTextStyle: const TextStyle(
-          color: Color.fromARGB(255, 255, 255, 255),
-          fontSize: 25,
-          fontWeight: FontWeight.w700,
-        ),
-        centerTitle: true,
-        backgroundColor: const Color.fromARGB(100, 30, 30, 30),
-      ),
+      backgroundColor: Colors.white,
+      appBar: BaseAppBar(appBar: AppBar(),center: true),
+      drawer: BaseDrawer(drawer: Drawer(), user: null),
       body: RefreshIndicator(
         //새로고침 package안에 들어있는 키워드
         onRefresh: () =>
@@ -142,11 +145,37 @@ class PostItem extends StatelessWidget {
   final String url;
   const PostItem(this.text, this.createDate, this.url, {super.key});
 
+  Future<String> _getDownloadDirectory() async {
+    Directory? directory;
+    if (Platform.isAndroid) {
+      directory = await getDownloadsDirectory();
+      final downloadPath = directory!.path;
+      final downloadDir = Directory(downloadPath);
+      print("다운로드 경로 : $downloadPath");
+      if (!await downloadDir.exists()) {
+        await downloadDir.create(recursive: true);
+      }
+
+      return downloadPath;
+    } else {
+      directory = await getApplicationDocumentsDirectory();
+      return directory.path;
+    }
+  }
+  //url를 통한 다운로드 시작
+  void _startDownload(String url) async {
+    final downloadDirectory = await _getDownloadDirectory();
+    final taskId = await FlutterDownloader.enqueue(
+      url: url,
+      savedDir: downloadDirectory,
+      fileName: Uri.parse(url).pathSegments.last,
+      showNotification: true, // show download progress in status bar (for Android)
+      openFileFromNotification: true, // click on notification to open downloaded file (for Android)
+    );
+    print('Download task started with ID: $taskId');
+  }
   @override
   Widget build(BuildContext context) {
-    if (kDebugMode) {
-      print(url);
-    }
     return Container(
       height: 300,
       width: 100,
@@ -154,7 +183,7 @@ class PostItem extends StatelessWidget {
         borderRadius: BorderRadius.all(
           Radius.circular(11),
         ),
-        color: Colors.white,
+        color: Color(0xffD9D9D9),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -162,25 +191,16 @@ class PostItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              text,
+              (text.trim().isEmpty) ? "제목 없음": text,
               style: const TextStyle(
-                  color: Color.fromARGB(255, 255, 158, 249),
+                  color: Colors.black,
                   fontSize: 25,
                   fontWeight: FontWeight.bold),
             ),
-            const SizedBox(
-              height: 10,
-            ),
-            Text(
-              createDate,
-              style: const TextStyle(
-                fontSize: 20,
-                color: Colors.black,
-              ),
-            ),
-            Text(
-              url,
-              style: const TextStyle(fontSize: 18, color: Colors.blue),
+            const SizedBox(height: 10),
+            Text(createDate, style: const TextStyle(fontSize: 20,color: Colors.black,)),
+            ElevatedButton(
+            onPressed: ()=> _startDownload(url), child: const Text("다운로드"),
             )
           ],
         ),
