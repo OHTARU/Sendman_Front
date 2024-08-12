@@ -90,7 +90,6 @@ class _SendManDemoState extends State<SendManDemo> {
         setState(() {
           _currentUser = account;
           _isAuthorized = isAuthorized;
-          SessionGoogle.save(account!, sessionGoogle);
         });
       }
 
