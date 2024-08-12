@@ -38,6 +38,9 @@ dependencies:
   infinite_scroll_pagination: ^4.0.0
   #파일 다운로드
   flutter_downloader: ^1.11.8
+  #세션 저장소
+  flutter_secure_storage: ^4.2.1
+
 
 dev_dependencies:
   flutter_test:
