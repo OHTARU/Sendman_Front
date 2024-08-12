@@ -4,7 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class SessionGoogle {
   late String username = '';
-  late ImageProvider url;
+  ImageProvider url = const AssetImage('assets/images/ExampleLogo.png');
   late String token;
 
   SessionGoogle() {
