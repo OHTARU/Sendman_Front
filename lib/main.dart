@@ -3,6 +3,7 @@ import 'dart:convert';
 //import 'dart:ffi';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_application_1/pages/drawer.dart';
 import 'package:flutter_application_1/pages/photo_to_text.dart';
 import 'package:flutter_application_1/pages/stt_list.dart';
@@ -35,11 +36,10 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
   scopes: scopes,
 );
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(
     debug: true,
-
   );
   // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -337,7 +337,6 @@ class _SendManDemoState extends State<SendManDemo> {
   Future<void> _handleSignOut() => _googleSignIn.disconnect();
 
   Widget _buildBody(GoogleSignInAccount? user) {
-
     if (user != null) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -358,45 +357,6 @@ class _SendManDemoState extends State<SendManDemo> {
                     child: const Text('승인 요청'),
                   ),
                 ],
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      decoration: const BoxDecoration(boxShadow: [
-                        BoxShadow(
-                            color: Colors.black,
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3))
-                      ]),
-                      child: TextButton(
-                        onPressed: () {
-                          showModalBottomSheet<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return const SizedBox(
-                                  height: 200,
-                                  child: Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        Text('바텀 모달'),
-                                        Text('???')
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              });
-                        },
-                        child: const Text(
-                          'Text - Speech',
-                        ),
-                      ),
-                    )
-                  ],
-                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -496,22 +456,25 @@ class _SendManDemoState extends State<SendManDemo> {
           ),
           Column(
             children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  elevation: 25,
-                  shadowColor: Colors.black54,
-                  backgroundColor: Colors.red,
-                  iconColor: Colors.white,
-                  surfaceTintColor: Colors.black,
-                  foregroundColor: Colors.white54,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 42, vertical: 18),
-                  alignment: const FractionalOffset(1, 1),
-                ),
-                onPressed: _isRecording ? _stopRecording : _startRecording,
-                child: Icon(
-                  _isRecording ? Icons.stop : Icons.mic,
-                  size: 40,
+              Container(
+                margin: const EdgeInsets.only(bottom: 30),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 25,
+                    shadowColor: Colors.black54,
+                    backgroundColor: Colors.red,
+                    iconColor: Colors.white,
+                    surfaceTintColor: Colors.black,
+                    foregroundColor: Colors.white54,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 42, vertical: 18),
+                    alignment: const FractionalOffset(1, 1),
+                  ),
+                  onPressed: _isRecording ? _stopRecording : _startRecording,
+                  child: Icon(
+                    _isRecording ? Icons.stop : Icons.mic,
+                    size: 40,
+                  ),
                 ),
               ),
             ],
@@ -557,16 +520,16 @@ class _SendManDemoState extends State<SendManDemo> {
         child: _buildBody(user),
       ),
       drawer: BaseDrawer(drawer: const Drawer(), user: user),
-      bottomNavigationBar: Container(
-        color: footerMainColor2,
-        width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
-        child: const Text(
-          '바닥',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: appBarTextColor, fontSize: 16),
-        ),
-      ),
+      // bottomNavigationBar: Container(
+      //   color: footerMainColor2,
+      //   width: double.infinity,
+      //   padding: const EdgeInsets.all(16.0),
+      //   child: const Text(
+      //     '바닥',
+      //     textAlign: TextAlign.center,
+      //     style: TextStyle(color: appBarTextColor, fontSize: 16),
+      //   ),
+      // ),
     );
   }
 }

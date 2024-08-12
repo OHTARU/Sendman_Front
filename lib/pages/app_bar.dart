@@ -13,15 +13,12 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: mainBlueColor,
-      centerTitle: center,
-      title: const Text(
-        "메인 앱바",
-        style: TextStyle(
-          color: appBarTextColor,
-        ),
-      ),
-    );
+        backgroundColor: mainWhiteColor,
+        centerTitle: center,
+        title: Image.asset(
+          'assets/images/SendManLogo.png',
+          width: 200,
+        ));
   }
 
   @override

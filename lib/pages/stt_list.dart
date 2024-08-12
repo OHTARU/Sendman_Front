@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
+//import 'dart:ui';
 
 // import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +46,7 @@ class SttListState extends State<SttList> {
     });
     super.initState();
   }
+
   //저장 권한 받기
   void _requestPermissions() async {
     final status = await Permission.storage.request();
@@ -55,6 +56,7 @@ class SttListState extends State<SttList> {
       print("Permission denied");
     }
   }
+
   @override
   void dispose() {
     _pagingController.dispose();
@@ -119,8 +121,8 @@ class SttListState extends State<SttList> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: BaseAppBar(appBar: AppBar(),center: true),
-      drawer: BaseDrawer(drawer: Drawer(), user: null),
+      appBar: BaseAppBar(appBar: AppBar(), center: true),
+      drawer: const BaseDrawer(drawer: Drawer(), user: null),
       body: RefreshIndicator(
         //새로고침 package안에 들어있는 키워드
         onRefresh: () =>
@@ -162,6 +164,7 @@ class PostItem extends StatelessWidget {
       return directory.path;
     }
   }
+
   //url를 통한 다운로드 시작
   void _startDownload(String url) async {
     final downloadDirectory = await _getDownloadDirectory();
@@ -169,11 +172,14 @@ class PostItem extends StatelessWidget {
       url: url,
       savedDir: downloadDirectory,
       fileName: Uri.parse(url).pathSegments.last,
-      showNotification: true, // show download progress in status bar (for Android)
-      openFileFromNotification: true, // click on notification to open downloaded file (for Android)
+      showNotification:
+          true, // show download progress in status bar (for Android)
+      openFileFromNotification:
+          true, // click on notification to open downloaded file (for Android)
     );
     print('Download task started with ID: $taskId');
   }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -191,16 +197,21 @@ class PostItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              (text.trim().isEmpty) ? "제목 없음": text,
+              (text.trim().isEmpty) ? "제목 없음" : text,
               style: const TextStyle(
                   color: Colors.black,
                   fontSize: 25,
                   fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            Text(createDate, style: const TextStyle(fontSize: 20,color: Colors.black,)),
+            Text(createDate,
+                style: const TextStyle(
+                  fontSize: 20,
+                  color: Colors.black,
+                )),
             ElevatedButton(
-            onPressed: ()=> _startDownload(url), child: const Text("다운로드"),
+              onPressed: () => _startDownload(url),
+              child: const Text("다운로드"),
             )
           ],
         ),
