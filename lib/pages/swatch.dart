@@ -27,7 +27,7 @@ class SwatchState extends State<Swatch> {
   Widget build(BuildContext context) {
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           StreamBuilder<int>(
               stream: widget.stopWatchTimer.rawTime,

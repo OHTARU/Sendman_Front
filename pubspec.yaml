@@ -17,7 +17,7 @@ dependencies:
   # 권한 요청
   permission_handler: ^10.0.0
   #녹음
-  flutter_sound: ^9.7.2
+  flutter_sound: ^9.10.4
   #해당경로 저장
   path_provider: ^2.0.2
   # 구글 로그인
@@ -39,9 +39,10 @@ dependencies:
   #파일 다운로드
   flutter_downloader: ^1.11.8
   #세션 저장소
-  flutter_secure_storage: ^4.2.1
+  flutter_secure_storage: ^9.2.2
 
-
+dependency_overrides:
+  js: ^0.7.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

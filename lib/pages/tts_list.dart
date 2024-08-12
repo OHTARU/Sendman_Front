@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:http/http.dart' as http;
 import 'tts_post_dto.dart';
+import 'package:flutter_application_1/src/get_token.dart';
 
 class Ttslist extends StatelessWidget {
   const Ttslist({super.key});
@@ -27,6 +27,7 @@ class TtsList extends StatefulWidget {
 class TtsListState extends State<TtsList> {
   final PagingController<int, TtsPost> _pagingController =
       PagingController(firstPageKey: 1);
+  final GetToken _getToken = GetToken();
 
   @override
   void initState() {
@@ -42,20 +43,9 @@ class TtsListState extends State<TtsList> {
     super.dispose();
   }
 
-  Future<String> _readToken() async {
-    try {
-      var dir = await getApplicationDocumentsDirectory();
-      var file = await File('${dir.path}/token.txt').readAsString();
-      return file;
-    } catch (e) {
-      print('토큰 읽기 오류: $e');
-      return '';
-    }
-  }
-
   Future<void> _fetchPage(int pageKey) async {
     try {
-      String token = await _readToken();
+      String token = await _getToken.readToken();
       var url = Uri.parse("http://13.125.54.112:8080/tts/list?page=$pageKey");
 
       Map<String, String> headers = {
@@ -68,14 +58,9 @@ class TtsListState extends State<TtsList> {
         if (response.bodyBytes.isNotEmpty) {
           Map<String, dynamic> responseList2 =
               jsonDecode(utf8.decode(response.bodyBytes));
-          print('여기 오는가? : ${responseList2.toString()}');
-
           var result = TtsPostsList.fromJson(responseList2['data']);
 
           final isLastPage = responseList2['data']['totalPages'] <= pageKey;
-
-          await Future.delayed(const Duration(seconds: 1));
-
           if (isLastPage) {
             _pagingController.appendLastPage(result.posts);
           } else {
@@ -83,17 +68,14 @@ class TtsListState extends State<TtsList> {
             _pagingController.appendPage(result.posts, nextPageKey);
           }
         } else {
-          print("responsebody 비어있음");
           _pagingController.error = "responseBody is Empty";
         }
       } else {
-        print("Failed to fetch data. 상태코드 : ${response.statusCode}");
         _pagingController.error =
             "Failed to fetch data. Status code: ${response.statusCode}";
       }
     } catch (e) {
-      print("error --> $e");
-      _pagingController.error = e;
+      _pagingController.error = e.toString();
     }
   }
 

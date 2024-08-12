@@ -4,17 +4,18 @@ import 'package:flutter_application_1/pages/page_tts.dart';
 import 'package:flutter_application_1/pages/photo_to_text.dart';
 import 'package:flutter_application_1/pages/stt_list.dart';
 import 'package:flutter_application_1/pages/tts_list.dart';
+import 'package:flutter_application_1/src/session.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class BaseDrawer extends StatelessWidget {
-  const BaseDrawer({super.key, required this.drawer, required this.user});
-  final GoogleSignInAccount? user;
+  const BaseDrawer({super.key, required this.drawer});
   final Drawer drawer;
 
   @override
   Widget build(BuildContext context) {
-    final user = this.user;
-    if (user != null) {
+    SessionGoogle sessionGoogle = SessionGoogle();
+
+    if (sessionGoogle.username != "anonymous") {
       return Drawer(
         child: Column(
           children: [
@@ -33,11 +34,13 @@ class BaseDrawer extends StatelessWidget {
                             CloseButton(),
                           ],
                         ),
-                        GoogleUserCircleAvatar(identity: user),
+                        // GoogleUserCircleAvatar(identity: user),
+                        CircleAvatar(backgroundImage: sessionGoogle.url),
+
                         const SizedBox(
                           height: 10,
                         ),
-                        Text(user.displayName ?? '',
+                        Text(sessionGoogle.username,
                             style: const TextStyle(
                                 fontSize: 20, fontWeight: FontWeight.w600)),
                         const SizedBox(

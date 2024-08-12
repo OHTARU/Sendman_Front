@@ -94,7 +94,7 @@ class SttListState extends State<SttList> {
 
           final isLastPage = responseList2['data']['totalPages'] <= pageKey;
 
-          await Future.delayed(const Duration(seconds: 1));
+          await Future.delayed(const Duration(seconds: 2));
 
           if (isLastPage) {
             _pagingController.appendLastPage(result.posts);
@@ -122,7 +122,7 @@ class SttListState extends State<SttList> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: BaseAppBar(appBar: AppBar(), center: true),
-      drawer: const BaseDrawer(drawer: Drawer(), user: null),
+      drawer: const BaseDrawer(drawer: Drawer()),
       body: RefreshIndicator(
         //새로고침 package안에 들어있는 키워드
         onRefresh: () =>
