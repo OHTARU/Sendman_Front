@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/page_tts.dart';
 import 'package:flutter_application_1/pages/photo_to_text.dart';
 import 'package:flutter_application_1/pages/stt_list.dart';
+import 'package:flutter_application_1/pages/stt_page.dart';
 import 'package:flutter_application_1/pages/tts_list.dart';
 import 'package:flutter_application_1/src/session.dart';
 
@@ -57,6 +58,8 @@ class BaseDrawer extends StatelessWidget {
                   ),
                 ),
                 buildListTile(
+                    context, Icons.text_format, "음성 - 글자", const SttPage()),
+                buildListTile(
                     context, Icons.mic, "글자 - 음성", const TextToSpeech()),
                 buildListTile(
                     context, Icons.image, "사진 - 글자", const PhotoToText()),
@@ -73,7 +76,8 @@ class BaseDrawer extends StatelessWidget {
               padding: const EdgeInsets.all(12.0),
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 18),
-                child: buildTextButton(context, sessionGoogle.username == "anonymous"),
+                child: buildTextButton(
+                    context, sessionGoogle.username == "anonymous"),
               ),
             ),
           ),
@@ -81,22 +85,25 @@ class BaseDrawer extends StatelessWidget {
       ),
     );
   }
-  TextButton buildTextButton(BuildContext context,bool isUser){
+
+  TextButton buildTextButton(BuildContext context, bool isUser) {
     String data;
     isUser ? (data = "로그인") : (data = "로그아웃");
     return TextButton(
-      style: TextButton.styleFrom(
-        foregroundColor: const Color.fromARGB(255, 16, 38, 104),
-      ),
-      onPressed: () {
-        isUser ? (SessionGoogle.googleLogin()) : (SessionGoogle.logout());
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const SendManDemo()), (route) => false);
-      },
-      child: Text(data,
-          style:
-          const TextStyle(fontWeight: FontWeight.w800, fontSize: 20))
-    );
+        style: TextButton.styleFrom(
+          foregroundColor: const Color.fromARGB(255, 16, 38, 104),
+        ),
+        onPressed: () {
+          isUser ? (SessionGoogle.googleLogin()) : (SessionGoogle.logout());
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const SendManDemo()),
+              (route) => false);
+        },
+        child: Text(data,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 20)));
   }
+
   ListTile buildListTile(BuildContext context, IconData icon, String title,
       Widget destinationPage) {
     return ListTile(

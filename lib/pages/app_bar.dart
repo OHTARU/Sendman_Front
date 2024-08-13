@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/colors/colors.dart';
+import 'package:flutter_application_1/main.dart';
 
 class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
   const BaseAppBar({
@@ -15,9 +16,19 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
         backgroundColor: mainWhiteColor,
         centerTitle: center,
-        title: Image.asset(
-          'assets/images/SendManLogo.png',
-          width: 200,
+        title: IconButton(
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const SendManDemo()),
+                (route) => false);
+          },
+          icon: Image.asset(
+            'assets/images/SendManLogo.png',
+            fit: BoxFit.contain,
+            width: 200,
+          ),
+          padding: const EdgeInsets.fromLTRB(36, 5, 36, 5),
         ));
   }
 

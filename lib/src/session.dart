@@ -35,7 +35,7 @@ class SessionGoogle {
     return session;
   }
 
-  static Future<SessionGoogle> logout() async{
+  static Future<SessionGoogle> logout() async {
     const storage = FlutterSecureStorage();
     SessionGoogle session = SessionGoogle();
     await storage.delete(key: "username");
@@ -45,7 +45,8 @@ class SessionGoogle {
     await session.initialize();
     return session;
   }
-  static Future<SessionGoogle> googleLogin() async{
+
+  static Future<SessionGoogle> googleLogin() async {
     SessionGoogle session = SessionGoogle();
     const storage = FlutterSecureStorage();
     GoogleSignInAccount? account = await _googleSignIn.signIn();
@@ -57,40 +58,36 @@ class SessionGoogle {
       unawaited(_responseHttp(account!));
       await storage.write(key: "username", value: account.displayName);
       await storage.write(key: "url", value: account.photoUrl);
-      await account.authentication.then((val)=>{
-         storage.write(key: "token", value: val.accessToken)
-      });
+      await account.authentication
+          .then((val) => {storage.write(key: "token", value: val.accessToken)});
     }
     await session.initialize();
     return session;
   }
-
 }
+
 const List<String> scopes = <String>[
   'email',
   'profile',
 ];
 GoogleSignIn _googleSignIn = GoogleSignIn(
   clientId:
-  '380369825003-pn4dcsi5l5hm3vtd7fn0ef11bjeqqtro.apps.googleusercontent.com',
+      '380369825003-pn4dcsi5l5hm3vtd7fn0ef11bjeqqtro.apps.googleusercontent.com',
   scopes: scopes,
 );
-
 
 //http통신 유저 Auth코드 가져오기
 Future<void> _responseHttp(GoogleSignInAccount user) async {
   try {
     final http.Response response = await http.get(
-      Uri.parse('$serverUri/login/google?code=$user'),
+      Uri.parse('$serverUri/login/google?code=${user.serverAuthCode}'),
     );
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       var decodedJson = jsonDecode(utf8.decode(response.bodyBytes));
       if (decodedJson != null && decodedJson['data'] != null) {
         await writeToken(decodedJson['data']['accesstoken']);
-      } else {
-
-      }
+      } else {}
     } else {
       print('response? : ${response.statusCode}');
     }

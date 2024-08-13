@@ -40,6 +40,8 @@ dependencies:
   flutter_downloader: ^1.11.8
   #세션 저장소
   flutter_secure_storage: ^9.2.2
+  #카메라
+  camera: ^0.11.0+2
 
 dependency_overrides:
   js: ^0.7.1
