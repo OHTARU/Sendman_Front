@@ -26,17 +26,6 @@ import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
-const List<String> scopes = <String>[
-  'email',
-  'profile',
-];
-
-GoogleSignIn _googleSignIn = GoogleSignIn(
-  clientId:
-      '380369825003-pn4dcsi5l5hm3vtd7fn0ef11bjeqqtro.apps.googleusercontent.com',
-  scopes: scopes,
-);
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(
@@ -60,12 +49,7 @@ class SendManDemo extends StatefulWidget {
 }
 
 class _SendManDemoState extends State<SendManDemo> {
-  GoogleSignInAccount? _currentUser;
-  bool _isAuthorized = false;
   SessionGoogle sessionGoogle = SessionGoogle();
-  // ignore: unused_field
-  String _tokenText = '';
-  String accessTokenBearer = '';
   FlutterSoundRecorder? _recorder;
   bool _isRecording = false;
   int audioNum = 0;
@@ -79,26 +63,6 @@ class _SendManDemoState extends State<SendManDemo> {
     initialization();
     _recorder = FlutterSoundRecorder();
     _initializeRecorder();
-
-    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-      bool isAuthorized = account != null;
-      if (kIsWeb && account != null) {
-        isAuthorized = _googleSignIn.canAccessScopes(scopes) as bool;
-      }
-
-      if (mounted) {
-        setState(() {
-          _currentUser = account;
-          _isAuthorized = isAuthorized;
-        });
-      }
-
-      if (isAuthorized) {
-        unawaited(_getAccessToken(account!));
-      }
-    });
-
-    _googleSignIn.signInSilently();
   }
 
   void initialization() async {
@@ -112,32 +76,7 @@ class _SendManDemoState extends State<SendManDemo> {
     FlutterNativeSplash.remove();
   }
 
-  //http통신 유저 Auth코드 가져오기
-  Future<void> _responseHttp(GoogleSignInAccount user) async {
-    try {
-      final http.Response response = await http.get(
-        Uri.parse('$serverUri/login/google?code=${user.serverAuthCode}'),
-      );
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        var decodedJson = jsonDecode(utf8.decode(response.bodyBytes));
-
-        if (decodedJson != null && decodedJson['data'] != null) {
-          String accessToken = decodedJson['data']['accesstoken'];
-          print(
-              "response : ${response.statusCode} | decodingJson : $accessToken");
-          accessTokenBearer = accessToken;
-          await writeToken(accessToken);
-        } else {
-          print("Error: 'data' key not found in the JSON response.");
-        }
-      } else {
-        print('response? : ${response.statusCode}');
-      }
-    } catch (e) {
-      print('어떤 오류가 기다릴까? $e');
-    }
-  }
 
   Future<void> writeToken(String token) async {
     try {
@@ -267,6 +206,25 @@ class _SendManDemoState extends State<SendManDemo> {
     }
   }
 
+  Future<void> _handleSignIn() async {
+    SessionGoogle session = SessionGoogle();
+    await SessionGoogle.googleLogin().then((val)=>{
+      session = val
+    });
+    setState(() {
+      sessionGoogle = session;
+    });
+  }
+  Future<void>_handleLogout() async{
+    SessionGoogle session = SessionGoogle();
+    await SessionGoogle.logout().then((val)=>{
+      session = val
+    });
+    setState(() {
+      sessionGoogle = session;
+    });
+
+  }
   //녹움 즁지
   void _stopRecording() async {
     try {
@@ -299,46 +257,16 @@ class _SendManDemoState extends State<SendManDemo> {
     _stopWatchTimer.dispose();
     super.dispose();
   }
-
-  // 구글 AccessToken toString으로 가져옴
-  Future<void> _getAccessToken(GoogleSignInAccount user) async {
-    try {
-      final GoogleSignInAuthentication googleAuth = await user.authentication;
-      _tokenText = googleAuth.accessToken.toString();
-      print('_getAccessToken() 액세스 토큰 : ${googleAuth.accessToken.toString()}');
-    } catch (e) {
-      _tokenText = e.toString();
-    }
-
-    _responseHttp(_currentUser!);
+  BaseDrawer _drawer(){
+    setState(() {
+      sessionGoogle.initialize();
+    });
+    return const BaseDrawer(drawer: Drawer());
   }
 
-  Future<void> _handleSignIn() async {
-    try {
-      await _googleSignIn.signIn();
-    } catch (error) {
-      if (kDebugMode) {
-        print('로그인 오류');
-      }
-    }
-  }
 
-  Future<void> _handleAuthorizeScopes() async {
-    final bool isAuthorized = await _googleSignIn.requestScopes(scopes);
-    if (mounted) {
-      setState(() {
-        _isAuthorized = isAuthorized;
-      });
-    }
-    if (isAuthorized) {
-      unawaited(_getAccessToken(_currentUser!));
-    }
-  }
-
-  Future<void> _handleSignOut() => _googleSignIn.disconnect();
-
-  Widget _buildBody(GoogleSignInAccount? user) {
-    if (user != null) {
+  Widget _buildBody(SessionGoogle user) {
+    if (user.username != "anonymous") {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -347,22 +275,11 @@ class _SendManDemoState extends State<SendManDemo> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                if (_isAuthorized) ...<Widget>[
-                  // 액세스 토큰
-                  // Text(_contactText),
-                ],
-                if (!_isAuthorized) ...<Widget>[
-                  const Text('읽기 접근 권한 필요'),
-                  ElevatedButton(
-                    onPressed: _handleAuthorizeScopes,
-                    child: const Text('승인 요청'),
-                  ),
-                ],
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
-                      onPressed: _handleSignOut,
+                      onPressed: _handleLogout,
                       child: const Text('로그아웃'),
                     ),
                   ],
@@ -454,7 +371,9 @@ class _SendManDemoState extends State<SendManDemo> {
 
   @override
   Widget build(BuildContext context) {
-    GoogleSignInAccount? user = _currentUser;
+    setState(() {
+      sessionGoogle.initialize();
+    });
     return Scaffold(
       appBar: BaseAppBar(
         appBar: AppBar(),
@@ -462,9 +381,9 @@ class _SendManDemoState extends State<SendManDemo> {
       ),
       body: ConstrainedBox(
         constraints: const BoxConstraints.expand(),
-        child: _buildBody(user),
+        child: _buildBody(sessionGoogle),
       ),
-      drawer: const BaseDrawer(drawer: Drawer()),
+      drawer: _drawer(),
       // bottomNavigationBar: Container(
       //   color: footerMainColor2,
       //   width: double.infinity,

@@ -6,6 +6,8 @@ import 'package:flutter_application_1/pages/stt_list.dart';
 import 'package:flutter_application_1/pages/tts_list.dart';
 import 'package:flutter_application_1/src/session.dart';
 
+import '../main.dart';
+
 class BaseDrawer extends StatelessWidget {
   const BaseDrawer({super.key, required this.drawer});
   final Drawer drawer;
@@ -71,15 +73,7 @@ class BaseDrawer extends StatelessWidget {
               padding: const EdgeInsets.all(12.0),
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 18),
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: const Color.fromARGB(255, 16, 38, 104),
-                  ),
-                  onPressed: () {},
-                  child: const Text('로그아웃',
-                      style:
-                          TextStyle(fontWeight: FontWeight.w800, fontSize: 20)),
-                ),
+                child: buildTextButton(context, sessionGoogle.username == "anonymous"),
               ),
             ),
           ),
@@ -87,7 +81,22 @@ class BaseDrawer extends StatelessWidget {
       ),
     );
   }
-
+  TextButton buildTextButton(BuildContext context,bool isUser){
+    String data;
+    isUser ? (data = "로그인") : (data = "로그아웃");
+    return TextButton(
+      style: TextButton.styleFrom(
+        foregroundColor: const Color.fromARGB(255, 16, 38, 104),
+      ),
+      onPressed: () {
+        isUser ? (SessionGoogle.googleLogin()) : (SessionGoogle.logout());
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const SendManDemo()), (route) => false);
+      },
+      child: Text(data,
+          style:
+          const TextStyle(fontWeight: FontWeight.w800, fontSize: 20))
+    );
+  }
   ListTile buildListTile(BuildContext context, IconData icon, String title,
       Widget destinationPage) {
     return ListTile(

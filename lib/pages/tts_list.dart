@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:http/http.dart' as http;
+import 'app_bar.dart';
+import 'drawer.dart';
 import 'tts_post_dto.dart';
 import 'package:flutter_application_1/src/get_token.dart';
 
@@ -82,21 +84,15 @@ class TtsListState extends State<TtsList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text("무한 스크롤 TTS"),
-        titleTextStyle: const TextStyle(
-          color: Color.fromARGB(255, 255, 255, 255),
-          fontSize: 25,
-          fontWeight: FontWeight.w700,
-        ),
-        centerTitle: true,
-        backgroundColor: const Color.fromARGB(100, 30, 30, 30),
-      ),
+      backgroundColor: Colors.white,
+      appBar: BaseAppBar(appBar: AppBar(), center: true),
+      drawer: const BaseDrawer(drawer: Drawer()),
       body: RefreshIndicator(
-        onRefresh: () => Future.sync(() => _pagingController.refresh()),
+        //새로고침 package안에 들어있는 키워드
+        onRefresh: () =>
+            Future.sync(() => _pagingController.refresh()), //새로고침시 초기화
         child: PagedListView<int, TtsPost>(
-          pagingController: _pagingController,
+          pagingController: _pagingController, //저장했던 정보들
           builderDelegate: PagedChildBuilderDelegate<TtsPost>(
             itemBuilder: (context, item, index) => Padding(
               padding: const EdgeInsets.all(15.0),
@@ -112,7 +108,6 @@ class TtsListState extends State<TtsList> {
 class PostItem extends StatelessWidget {
   final String createDate;
   final String text;
-
   const PostItem(this.text, this.createDate, {super.key});
 
   @override
@@ -124,7 +119,7 @@ class PostItem extends StatelessWidget {
         borderRadius: BorderRadius.all(
           Radius.circular(11),
         ),
-        color: Colors.white,
+        color: Color(0xffD9D9D9),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -132,24 +127,16 @@ class PostItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              text,
+              (text.trim().isEmpty) ? "제목 없음" : text,
               style: const TextStyle(
-                color: Color.fromARGB(255, 255, 158, 249),
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              createDate,
-              style: const TextStyle(
-                fontSize: 20,
-                color: Colors.black,
-              ),
-            ),
+                  color: Colors.black,
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold),
+            )
           ],
         ),
       ),
     );
   }
 }
+
