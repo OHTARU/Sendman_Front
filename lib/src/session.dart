@@ -55,10 +55,10 @@ class SessionGoogle {
     }
     if (isAuthorized) {
       unawaited(_responseHttp(account!));
-      storage.write(key: "username", value: account.displayName);
-      storage.write(key: "url", value: account.photoUrl);
-      account.authentication.then((val)=>{
-        storage.write(key: "token", value: val.accessToken)
+      await storage.write(key: "username", value: account.displayName);
+      await storage.write(key: "url", value: account.photoUrl);
+      await account.authentication.then((val)=>{
+         storage.write(key: "token", value: val.accessToken)
       });
     }
     await session.initialize();
