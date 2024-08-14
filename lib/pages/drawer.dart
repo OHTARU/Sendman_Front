@@ -63,9 +63,9 @@ class BaseDrawer extends StatelessWidget {
                 buildListTile(
                     context, Icons.image, "사진 - 글자", const PhotoToText()),
                 buildListTile(
-                    context, Icons.attach_file, "음성 텍스트 보기", const TtsList()),
+                    context, Icons.attach_file, "음성 텍스트 보기", const SttList()),
                 buildListTile(
-                    context, Icons.attach_file, "사진 텍스트 보기", const SttList()),
+                    context, Icons.attach_file, "사진 텍스트 보기", const TtsList()),
               ],
             ),
           ),
