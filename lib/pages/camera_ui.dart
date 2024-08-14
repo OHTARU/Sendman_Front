@@ -1,14 +1,15 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:ui'; // 블러 처리를 위해 필요
+import 'package:http/http.dart' as http;
 import 'package:flutter_application_1/colors/colors.dart';
+import 'package:flutter_application_1/src/server_uri.dart';
 
 class CameraUI extends StatefulWidget {
-  final Future<String?> Function(File image) onPictureTaken;
-
-  const CameraUI({super.key, required this.onPictureTaken});
+  const CameraUI({super.key});
 
   @override
   State<CameraUI> createState() => _CameraUIState();
@@ -21,7 +22,7 @@ class _CameraUIState extends State<CameraUI> {
   bool _isProcessing = false;
   XFile? _capturedXFile;
   String? _ocrResult;
-  final ImagePicker _picker = ImagePicker(); // 갤러리에서 이미지 선택을 위해 추가
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -39,8 +40,6 @@ class _CameraUIState extends State<CameraUI> {
           enableAudio: false,
         );
         await controller.initialize();
-        await controller.setZoomLevel(1.0);
-
         setState(() {
           _isControllerInitialized = true;
         });
@@ -58,20 +57,24 @@ class _CameraUIState extends State<CameraUI> {
 
     try {
       setState(() {
-        _isProcessing = true;
+        _isProcessing = true; // 검은색 화면을 유지하기 위해 설정
       });
 
-      // 사진을 찍고 UI를 즉시 업데이트
       _capturedXFile = await controller.takePicture();
 
-      // UI를 즉시 갱신하여 사진이 찍힌 상태를 표시
+      // 사진을 찍은 후 즉시 화면에 반영
       setState(() {});
 
-      // 사진을 파일로 변환하여 OCR 처리
       final File imageFile = File(_capturedXFile!.path);
 
-      // OCR 결과를 받아오기
-      _ocrResult = await widget.onPictureTaken(imageFile);
+      _ocrResult = await _sendImageToOCR(imageFile);
+
+      if (_ocrResult != null) {
+        await _sendTextToServer(_ocrResult!);  // OCR 결과를 백엔드로 전송
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Text successfully sent to the server")),
+        );
+      }
 
       setState(() {
         _isProcessing = false;
@@ -84,27 +87,54 @@ class _CameraUIState extends State<CameraUI> {
     }
   }
 
-  Future<void> _pickImageFromGallery() async {
-    try {
-      final XFile? pickedFile =
-          await _picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        final File imageFile = File(pickedFile.path);
+  Future<String?> _sendImageToOCR(File image) async {
+    const String apiKey = 'YOUR_GOOGLE_VISION_API_KEY';
+    final Uri url =
+        Uri.parse('https://vision.googleapis.com/v1/images:annotate?key=$apiKey');
 
-        setState(() {
-          _capturedXFile = pickedFile;
-          _isProcessing = true;
-        });
+    final bytes = await image.readAsBytes();
+    final base64Image = base64Encode(bytes);
 
-        // OCR 결과를 받아오기
-        _ocrResult = await widget.onPictureTaken(imageFile);
+    final Map<String, dynamic> requestBody = {
+      "requests": [
+        {
+          "image": {"content": base64Image},
+          "features": [
+            {"type": "TEXT_DETECTION", "maxResults": 1}
+          ]
+        }
+      ]
+    };
 
-        setState(() {
-          _isProcessing = false;
-        });
-      }
-    } catch (e) {
-      print('Error picking image from gallery: $e');
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(requestBody),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      return jsonResponse['responses'][0]['fullTextAnnotation']['text'];
+    } else {
+      return 'Error: ${response.statusCode} ${response.body}';
+    }
+  }
+
+  Future<void> _sendTextToServer(String text) async { 
+    final Uri url = Uri.parse("$serverUri/your-endpoint");  // 백엔드 서버의 API
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({"text": text}),  // 텍스트를 JSON 형식으로 보내는건가요? 
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      print("Text sent to server successfully");
+    } else {
+      throw Exception(
+          "Failed to send text. Status code: ${response.statusCode}");
     }
   }
 
@@ -113,6 +143,39 @@ class _CameraUIState extends State<CameraUI> {
       _capturedXFile = null;
       _ocrResult = null;
     });
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final XFile? pickedFile =
+          await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _capturedXFile = pickedFile;
+          _isProcessing = true;
+        });
+
+        final File imageFile = File(pickedFile.path);
+
+        _ocrResult = await _sendImageToOCR(imageFile);
+
+        if (_ocrResult != null) {
+          await _sendTextToServer(_ocrResult!);  // OCR 결과를 백엔드로 전송
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Text successfully sent to the server")),
+          );
+        }
+
+        setState(() {
+          _isProcessing = false;
+        });
+      }
+    } catch (e) {
+      print('Error picking image from gallery: $e');
+      setState(() {
+        _isProcessing = false;
+      });
+    }
   }
 
   @override
@@ -131,225 +194,172 @@ class _CameraUIState extends State<CameraUI> {
 
     final size = MediaQuery.of(context).size;
     final deviceRatio = size.width / size.height;
-    final previewRatio = controller.value.previewSize!.height /
-        controller.value.previewSize!.width;
+    final previewRatio =
+        controller.value.previewSize!.height / controller.value.previewSize!.width;
 
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: _capturedXFile == null
-              ? Transform.scale(
-                  scale: previewRatio / deviceRatio,
-                  child: Center(
-                    child: AspectRatio(
-                      aspectRatio: previewRatio,
-                      child: CameraPreview(controller),
-                    ),
-                  ),
-                )
-              : Image.file(
-                  File(_capturedXFile!.path),
-                  fit: BoxFit.cover,
-                ),
-        ),
-        if (_isProcessing)
+    return Scaffold(
+      body: Stack(
+        children: [
+          // 사진을 찍은 후, 그 사진을 배경으로 표시
           Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 20),
-                  Material(
-                    type: MaterialType.transparency,
-                    child: Text(
-                      '사진을 분석 중이에요',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+            child: _capturedXFile == null
+                ? Transform.scale(
+                    scale: previewRatio / deviceRatio,
+                    child: Center(
+                      child: AspectRatio(
+                        aspectRatio: previewRatio,
+                        child: CameraPreview(controller),
+                      ),
                     ),
+                  )
+                : Image.file(
+                    File(_capturedXFile!.path),
+                   fit: _capturedXFile!.path.contains('image_picker') 
+                          ? BoxFit.contain 
+                          : BoxFit.cover,
                   ),
-                ],
-              ),
-            ),
           ),
-        if (!_isProcessing && _ocrResult != null)
-          Positioned.fill(
-            child: Material(
-              type: MaterialType.transparency,
+          if (_isProcessing)
+            Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.8),
-                alignment: Alignment.center,
+                color: Colors.black.withOpacity(0.7), // 검은색 화면 유지
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                  children: const [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 20),
                     Text(
-                      _ocrResult ?? '', // null인 경우 빈 문자열로 대체
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: _retry,
-                          child: Container(
-                            padding: const EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.5),
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  spreadRadius: 10,
-                                  blurRadius: 20,
-                                ),
-                              ],
-                            ),
-                            child: ClipOval(
-                              child: BackdropFilter(
-                                filter:
-                                    ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.1),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.refresh,
-                                    size: 24,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        GestureDetector(
-                          onTap: _pickImageFromGallery,
-                          child: Container(
-                            padding: const EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.5),
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  spreadRadius: 10,
-                                  blurRadius: 20,
-                                ),
-                              ],
-                            ),
-                            child: ClipOval(
-                              child: BackdropFilter(
-                                filter:
-                                    ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.1),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.photo_library_outlined,
-                                    size: 24,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                      '사진을 분석 중이에요',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                   ],
                 ),
               ),
             ),
-          ),
-        if (!_isProcessing && _capturedXFile == null)
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(22),
-              child: Stack(
-                children: [
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: GestureDetector(
-                      onTap: _pickImageFromGallery,
-                      child: Container(
-                        padding: const EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.5),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              spreadRadius: 10,
-                              blurRadius: 20,
+          if (!_isProcessing && _ocrResult != null)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.8),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(20),
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: Text(
+                            _ocrResult ?? '',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
-                        child: ClipOval(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.photo_library_outlined,
-                                size: 24,
-                                color: Colors.white,
-                              ),
-                            ),
+                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: GestureDetector(
-                      onTap: _takePicture,
-                      child: Container(
-                        width: 120,
-                        padding: const EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          color: photoToTextCameraIconBackgroundColor,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: const Icon(
-                          Icons.camera_alt_outlined,
-                          size: 28,
-                          color: Colors.white,
-                        ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.all(22),
+                      child: Stack(
+                        children: [
+                          Align(
+                            alignment: Alignment.bottomLeft,
+                            child: GestureDetector(
+                              onTap: _pickImageFromGallery,
+                              child: Container(
+                                padding: const EdgeInsets.all(15),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.1),
+                                  shape: BoxShape.circle,             
+                                ), 
+                                      child: const Icon(
+                                        Icons.photo_library_outlined,
+                                        size: 24,
+                                        color: Colors.white,
+                                      ),                        
+                       ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: GestureDetector(
+                              onTap: _retry,
+                              child: Container(
+                                width: 120,
+                                padding: const EdgeInsets.all(15),
+                                decoration: BoxDecoration(
+                                  color: photoToTextCameraIconBackgroundColor,
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: const Icon(
+                                  Icons.refresh,
+                                  size: 28,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-      ],
+          if (!_isProcessing && _capturedXFile == null)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(22),
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: GestureDetector(
+                        onTap: _pickImageFromGallery,
+                        child: Container(
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.30),
+                            shape: BoxShape.circle,                     
+                          ),
+                                child: const Icon(
+                                  Icons.photo_library_outlined,
+                                  size: 24,
+                                  color: Colors.white,
+                                ),
+                          ),
+                        ),
+                      
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: GestureDetector(
+                        onTap: _takePicture,
+                        child: Container(
+                          width: 120,
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            color: photoToTextCameraIconBackgroundColor,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt_outlined,
+                            size: 28,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
