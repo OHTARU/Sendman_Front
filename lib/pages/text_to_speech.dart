@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:flutter_application_1/pages/app_bar.dart';
+import 'package:flutter_application_1/src/session.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:flutter_application_1/pages/drawer.dart';
 
 class TextToSpeech extends StatefulWidget {
   const TextToSpeech({super.key});
@@ -16,6 +19,7 @@ enum TtsState { playing, stopped, paused, continued }
 
 class TextToSpeechState extends State<TextToSpeech> {
   late FlutterTts flutterTts;
+  SessionGoogle sessionGoogle = SessionGoogle();
   String? language;
   String? engine;
   double volume = 0.5;
@@ -213,8 +217,9 @@ class TextToSpeechState extends State<TextToSpeech> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Flutter TTS'),
+        appBar: BaseAppBar(
+          appBar: AppBar(),
+          center: true,
         ),
         body: SingleChildScrollView(
           scrollDirection: Axis.vertical,
@@ -229,6 +234,7 @@ class TextToSpeechState extends State<TextToSpeech> {
             ],
           ),
         ),
+        drawer: const BaseDrawer(),
       ),
     );
   }

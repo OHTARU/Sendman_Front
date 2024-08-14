@@ -86,7 +86,7 @@ class TtsListState extends State<TtsList> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: BaseAppBar(appBar: AppBar(), center: true),
-      drawer: const BaseDrawer(drawer: Drawer()),
+      drawer: const BaseDrawer(),
       body: RefreshIndicator(
         //새로고침 package안에 들어있는 키워드
         onRefresh: () =>
@@ -139,4 +139,3 @@ class PostItem extends StatelessWidget {
     );
   }
 }
-

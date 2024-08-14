@@ -171,13 +171,6 @@ class _SttPage extends State<SttPage> {
     super.dispose();
   }
 
-  BaseDrawer _drawer() {
-    setState(() {
-      sessionGoogle.initialize();
-    });
-    return const BaseDrawer(drawer: Drawer());
-  }
-
   Widget _buildBody(SessionGoogle user) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -256,7 +249,7 @@ class _SttPage extends State<SttPage> {
         constraints: const BoxConstraints.expand(),
         child: _buildBody(sessionGoogle),
       ),
-      drawer: _drawer(),
+      drawer: const BaseDrawer(),
     );
   }
 }

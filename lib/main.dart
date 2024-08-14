@@ -1,29 +1,12 @@
 import 'dart:async';
-// import 'dart:convert';
-//import 'dart:ffi';
 import 'dart:io';
 import 'package:flutter/material.dart';
-// import 'package:flutter/widgets.dart';
 import 'package:flutter_application_1/pages/drawer.dart';
 import 'package:flutter_application_1/src/session.dart';
-// import 'package:flutter_application_1/pages/photo_to_text.dart';
-// import 'package:flutter_application_1/pages/stt_list.dart';
-// import 'package:flutter_application_1/pages/tts_list.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-// import 'package:http/http.dart' as http;
-// import 'package:flutter/foundation.dart';
-// import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
-// import 'package:google_sign_in/google_sign_in.dart';
-// import 'package:stop_watch_timer/stop_watch_timer.dart';
-// import 'package:flutter_application_1/pages/swatch.dart';
 import 'package:flutter_application_1/pages/app_bar.dart';
-// import 'package:flutter_application_1/colors/colors.dart';
-// import 'package:flutter_application_1/pages/page_tts.dart';
-// import 'package:flutter_application_1/src/server_uri.dart';
-// import 'package:flutter_application_1/pages/token_storage.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
-// import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
@@ -87,13 +70,6 @@ class _SendManDemoState extends State<SendManDemo> {
     });
   }
 
-  BaseDrawer _drawer() {
-    setState(() {
-      sessionGoogle.initialize();
-    });
-    return const BaseDrawer(drawer: Drawer());
-  }
-
   Widget _buildBody(SessionGoogle user) {
     if (user.username != "anonymous") {
       return Column(
@@ -133,7 +109,7 @@ class _SendManDemoState extends State<SendManDemo> {
         constraints: const BoxConstraints.expand(),
         child: _buildBody(sessionGoogle),
       ),
-      drawer: _drawer(),
+      drawer: const BaseDrawer(),
     );
   }
 }

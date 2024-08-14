@@ -14,7 +14,7 @@ import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_application_1/pages/swatch.dart';
 import 'package:flutter_application_1/pages/app_bar.dart';
 import 'package:flutter_application_1/colors/colors.dart';
-import 'package:flutter_application_1/pages/page_tts.dart';
+import 'package:flutter_application_1/pages/text_to_speech.dart';
 import 'package:flutter_application_1/src/server_uri.dart';
 import 'package:flutter_application_1/pages/token_storage.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
