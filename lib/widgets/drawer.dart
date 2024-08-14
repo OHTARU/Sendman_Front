@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_application_1/pages/text_to_speech.dart';
 import 'package:flutter_application_1/pages/photo_to_text.dart';
 import 'package:flutter_application_1/pages/stt_list.dart';

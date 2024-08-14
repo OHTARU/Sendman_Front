@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 import '../src/server_uri.dart';
 import '../src/session.dart';
 import 'app_bar.dart';
-import 'drawer.dart';
+import '../widgets/drawer.dart';
 
 class SttPage extends StatefulWidget {
   const SttPage({super.key});

@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter_application_1/pages/app_bar.dart';
 import 'package:flutter_application_1/src/session.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:flutter_application_1/pages/drawer.dart';
+import 'package:flutter_application_1/widgets/drawer.dart';
 
 class TextToSpeech extends StatefulWidget {
   const TextToSpeech({super.key});

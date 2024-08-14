@@ -8,3 +8,4 @@ const Color footerMainColor = Color(0xFFA3CEF1);
 const Color footerMainColor2 = Color(0xFF6096BA);
 const Color mainWhiteColor = Color.fromARGB(255, 255, 255, 255);
 const Color photoToTextCameraIconBackgroundColor = Color(0xFF293E7C);
+const Color mainThemeColor = Color(0xff29327c);

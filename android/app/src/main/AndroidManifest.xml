@@ -7,7 +7,7 @@
     </queries>
 
     <application
-        android:label="flutter_application_1"
+        android:label="Send Man"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
