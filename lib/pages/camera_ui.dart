@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:ui'; // 블러 처리를 위해 필요
+import 'dart:ui';
 import 'package:flutter_application_1/colors/colors.dart';
 
 class CameraUI extends StatefulWidget {
@@ -21,7 +21,7 @@ class _CameraUIState extends State<CameraUI> {
   bool _isProcessing = false;
   XFile? _capturedXFile;
   String? _ocrResult;
-  final ImagePicker _picker = ImagePicker(); // 갤러리에서 이미지 선택을 위해 추가
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {

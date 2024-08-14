@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/swatch.dart';
+import 'package:flutter_application_1/widgets/swatch.dart';
 import 'package:flutter_application_1/pages/token_storage.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:path_provider/path_provider.dart';
@@ -11,7 +11,7 @@ import 'package:http/http.dart' as http;
 
 import '../src/server_uri.dart';
 import '../src/session.dart';
-import 'app_bar.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/drawer.dart';
 
 class SttPage extends StatefulWidget {

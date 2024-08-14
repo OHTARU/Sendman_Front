@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
-import 'package:flutter_application_1/pages/app_bar.dart';
+import 'package:flutter_application_1/widgets/app_bar.dart';
 import 'package:flutter_application_1/src/session.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
@@ -216,7 +216,8 @@ class TextToSpeechState extends State<TextToSpeech> {
               ),
               Text(
                 isPlaying ? '재생 중' : '입력 후 하단 버튼을 눌러 재생',
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w100),
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.w100),
               ),
               Container(
                   margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
@@ -224,21 +225,22 @@ class TextToSpeechState extends State<TextToSpeech> {
                       style: ElevatedButton.styleFrom(
                         elevation: 20,
                         shadowColor: Colors.black54,
-                        backgroundColor: isPlaying ? const Color(0xff293e7c):Colors.red,
+                        backgroundColor:
+                            isPlaying ? const Color(0xff293e7c) : Colors.red,
                         iconColor: Colors.white,
                         surfaceTintColor: Colors.black,
                         foregroundColor: Colors.white54,
-                        padding:
-                        const EdgeInsets.symmetric(horizontal: 150, vertical: 18),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 150, vertical: 18),
                         alignment: const FractionalOffset(1, 1),
                       ),
-                      onPressed: _newVoiceText != null && _newVoiceText != "" ? (isPlaying? _stop : _speak) : null,
+                      onPressed: _newVoiceText != null && _newVoiceText != ""
+                          ? (isPlaying ? _stop : _speak)
+                          : null,
                       child: Icon(
                         isPlaying ? Icons.stop : Icons.play_arrow,
                         size: 40,
-                      )
-                  )
-              ),
+                      ))),
             ],
           ),
         ),
@@ -266,9 +268,8 @@ class TextToSpeechState extends State<TextToSpeech> {
         maxLines: 11,
         minLines: 6,
         decoration: const InputDecoration(
-          hintText: "텍스트를 입력해주세요",
-          hintStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w100)
-        ),
+            hintText: "텍스트를 입력해주세요",
+            hintStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w100)),
         onChanged: (String value) {
           _onChange(value);
         },

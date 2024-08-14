@@ -4,7 +4,7 @@ import 'dart:io';
 
 // import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/app_bar.dart';
+import 'package:flutter_application_1/widgets/app_bar.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'stt_post_dto.dart';
+import '../src/stt_post_dto.dart';
 //import 'tts_post_dto.dart';
 
 class Sttlist extends StatelessWidget {
