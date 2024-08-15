@@ -10,7 +10,9 @@ import 'package:flutter_application_1/src/server_uri.dart';
 import '../src/get_token.dart';
 
 class CameraUI extends StatefulWidget {
-  const CameraUI({super.key});
+  const CameraUI(
+      {super.key,
+      required Future<String?> Function(File image) onPictureTaken});
 
   @override
   State<CameraUI> createState() => _CameraUIState();
@@ -72,7 +74,7 @@ class _CameraUIState extends State<CameraUI> {
       _ocrResult = await _sendImageToOCR(imageFile);
 
       if (_ocrResult != null) {
-        await _sendTextToServer(_ocrResult!);  // OCR 결과를 백엔드로 전송
+        await _sendTextToServer(_ocrResult!); // OCR 결과를 백엔드로 전송
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("사진 안에 있는 텍스트를 저장하였습니다!")),
         );
@@ -90,10 +92,9 @@ class _CameraUIState extends State<CameraUI> {
   }
 
   Future<String?> _sendImageToOCR(File image) async {
-
     const String apiKey = 'AIzaSyAtNXwq7_KtXWDop3ZV_WGryDfmcTTeZaM';
-    final Uri url =
-    Uri.parse('https://vision.googleapis.com/v1/images:annotate?key=$apiKey');
+    final Uri url = Uri.parse(
+        'https://vision.googleapis.com/v1/images:annotate?key=$apiKey');
 
     final bytes = await image.readAsBytes();
     final base64Image = base64Encode(bytes);
@@ -125,7 +126,7 @@ class _CameraUIState extends State<CameraUI> {
 
   Future<void> _sendTextToServer(String text) async {
     String token = await _getToken.readToken();
-    final Uri url = Uri.parse("$serverUri/tts/save?text=$text");  // 백엔드 서버의 API
+    final Uri url = Uri.parse("$serverUri/tts/save?text=$text"); // 백엔드 서버의 API
     final response = await http.post(
       url,
       headers: {
@@ -152,7 +153,7 @@ class _CameraUIState extends State<CameraUI> {
   Future<void> _pickImageFromGallery() async {
     try {
       final XFile? pickedFile =
-      await _picker.pickImage(source: ImageSource.gallery);
+          await _picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         setState(() {
           _capturedXFile = pickedFile;
@@ -164,7 +165,7 @@ class _CameraUIState extends State<CameraUI> {
         _ocrResult = await _sendImageToOCR(imageFile);
 
         if (_ocrResult != null) {
-          await _sendTextToServer(_ocrResult!);  // OCR 결과를 백엔드로 전송
+          await _sendTextToServer(_ocrResult!); // OCR 결과를 백엔드로 전송
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("사진 안에 있는 텍스트를 저장하였습니다!")),
           );
@@ -198,8 +199,8 @@ class _CameraUIState extends State<CameraUI> {
 
     final size = MediaQuery.of(context).size;
     final deviceRatio = size.width / size.height;
-    final previewRatio =
-        controller.value.previewSize!.height / controller.value.previewSize!.width;
+    final previewRatio = controller.value.previewSize!.height /
+        controller.value.previewSize!.width;
 
     return Scaffold(
       body: Stack(
@@ -208,20 +209,20 @@ class _CameraUIState extends State<CameraUI> {
           Positioned.fill(
             child: _capturedXFile == null
                 ? Transform.scale(
-              scale: previewRatio / deviceRatio,
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: previewRatio,
-                  child: CameraPreview(controller),
-                ),
-              ),
-            )
+                    scale: previewRatio / deviceRatio,
+                    child: Center(
+                      child: AspectRatio(
+                        aspectRatio: previewRatio,
+                        child: CameraPreview(controller),
+                      ),
+                    ),
+                  )
                 : Image.file(
-              File(_capturedXFile!.path),
-              fit: _capturedXFile!.path.contains('image_picker')
-                  ? BoxFit.contain
-                  : BoxFit.cover,
-            ),
+                    File(_capturedXFile!.path),
+                    fit: _capturedXFile!.path.contains('image_picker')
+                        ? BoxFit.contain
+                        : BoxFit.cover,
+                  ),
           ),
           if (_isProcessing)
             Positioned.fill(
@@ -337,7 +338,6 @@ class _CameraUIState extends State<CameraUI> {
                           ),
                         ),
                       ),
-
                     ),
                     Align(
                       alignment: Alignment.bottomCenter,

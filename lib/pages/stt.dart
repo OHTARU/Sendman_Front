@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/widgets/swatch.dart';
-import 'package:flutter_application_1/pages/token_storage.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -100,9 +99,9 @@ class _SttPage extends State<SttPage> {
           result = res['data']['result'].toString();
         });
         print(result);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("녹음 한 내용을 저장하였습니다.")),
-          );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("녹음 한 내용을 저장하였습니다.")),
+        );
       } else {
         print('파일 전송 실패, 응답 코드: ${response.statusCode}');
       }
@@ -171,7 +170,6 @@ class _SttPage extends State<SttPage> {
       }
       // file = File(filePath.toString());
       // print(file.toString());
-
     } catch (e) {
       if (kDebugMode) {
         print("녹음 중지 오류: $e");
@@ -205,8 +203,7 @@ class _SttPage extends State<SttPage> {
           stopWatchTimer: _stopWatchTimer,
           isMinutes: _isMinutes,
         ),
-        Text((result != "") ? result : "")
-        ,
+        Text((result != "") ? result : ""),
         Column(
           children: [
             Container(
@@ -223,7 +220,9 @@ class _SttPage extends State<SttPage> {
                       const EdgeInsets.symmetric(horizontal: 100, vertical: 18),
                   alignment: const FractionalOffset(1, 1),
                 ),
-                onPressed: _isRecording ? (isSend ? null : _stopRecording) : _startRecording,
+                onPressed: _isRecording
+                    ? (isSend ? null : _stopRecording)
+                    : _startRecording,
                 child: Icon(
                   _isRecording ? Icons.stop : Icons.mic,
                   size: 40,
