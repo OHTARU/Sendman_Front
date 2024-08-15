@@ -10,9 +10,7 @@ import 'package:flutter_application_1/src/server_uri.dart';
 import '../src/get_token.dart';
 
 class CameraUI extends StatefulWidget {
-  const CameraUI(
-      {super.key,
-      required Future<String?> Function(File image) onPictureTaken});
+  const CameraUI({super.key});
 
   @override
   State<CameraUI> createState() => _CameraUIState();

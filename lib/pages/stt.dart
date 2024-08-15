@@ -99,6 +99,7 @@ class _SttPage extends State<SttPage> {
           result = res['data']['result'].toString();
         });
         print(result);
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("녹음 한 내용을 저장하였습니다.")),
         );
