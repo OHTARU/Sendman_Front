@@ -35,10 +35,13 @@ class _SendManDemoState extends State<SendManDemo> {
   void initState() {
     super.initState();
     initialization();
-    sessionGoogle.initialize();
   }
 
   void initialization() async {
+    await sessionGoogle.initialize();
+    setState(() {
+      sessionGoogle;
+    });
     print('ready in 3...');
     await Future.delayed(const Duration(seconds: 1));
     print('ready in 2...');
@@ -91,9 +94,6 @@ class _SendManDemoState extends State<SendManDemo> {
 
   @override
   Widget build(BuildContext context) {
-    setState(() {
-      sessionGoogle.initialize();
-    });
     return Scaffold(
       appBar: BaseAppBar(
         appBar: AppBar(),
