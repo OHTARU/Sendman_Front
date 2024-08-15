@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,8 @@ class _SttPage extends State<SttPage> {
   final StopWatchTimer _stopWatchTimer = StopWatchTimer();
   final bool _isMinutes = true;
   late final File file;
+  String result = "";
+  bool isSend = false;
   int audioNum = 0;
   @override
   void initState() {
@@ -68,7 +71,9 @@ class _SttPage extends State<SttPage> {
         print('노 토큰');
         return;
       }
-
+      setState(() {
+        isSend = true;
+      });
       // 서버 업로드 URI
       var uri = Uri.parse('$serverUri/stt/save');
       Map<String, String> headers = {
@@ -88,7 +93,16 @@ class _SttPage extends State<SttPage> {
 
       // 응답
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        print('파일 전송 성공');
+        var res = jsonDecode(utf8.decode(await response.stream.single));
+
+        setState(() {
+          isSend = false;
+          result = res['data']['result'].toString();
+        });
+        print(result);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("녹음 한 내용을 저장하였습니다.")),
+          );
       } else {
         print('파일 전송 실패, 응답 코드: ${response.statusCode}');
       }
@@ -127,6 +141,7 @@ class _SttPage extends State<SttPage> {
       if (mounted) {
         setState(() {
           _isRecording = true;
+          result = "";
         });
       }
       print("녹음 시작");
@@ -142,21 +157,21 @@ class _SttPage extends State<SttPage> {
   void _stopRecording() async {
     try {
       final filePath = await _recorder!.stopRecorder();
+      _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
 
-      if (mounted) {
-        setState(() {
-          _isRecording = false;
-        });
-      }
       print("녹음 중지");
       print("저장된 파일 경로: \n $filePath");
 
       //업로드 파일
       await uploadFile(filePath!);
-
+      if (mounted) {
+        setState(() {
+          _isRecording = false;
+        });
+      }
       // file = File(filePath.toString());
       // print(file.toString());
-      _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
+
     } catch (e) {
       if (kDebugMode) {
         print("녹음 중지 오류: $e");
@@ -181,7 +196,7 @@ class _SttPage extends State<SttPage> {
               height: 60,
             ),
             Text(
-              _isRecording ? '녹음 중' : '음성 녹음을 시작해주세요',
+              _isRecording ? (isSend ? "분석 중 입니다!" : "녹음 중") : '음성 녹음을 시작해주세요',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
             )
           ],
@@ -190,22 +205,8 @@ class _SttPage extends State<SttPage> {
           stopWatchTimer: _stopWatchTimer,
           isMinutes: _isMinutes,
         ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const TokenStorage(),
-                  ),
-                );
-              },
-              child: const Text('텍스트 파일 저장 연습용'),
-            ),
-          ],
-        ),
+        Text((result != "") ? result : "")
+        ,
         Column(
           children: [
             Container(
@@ -222,7 +223,7 @@ class _SttPage extends State<SttPage> {
                       const EdgeInsets.symmetric(horizontal: 100, vertical: 18),
                   alignment: const FractionalOffset(1, 1),
                 ),
-                onPressed: _isRecording ? _stopRecording : _startRecording,
+                onPressed: _isRecording ? (isSend ? null : _stopRecording) : _startRecording,
                 child: Icon(
                   _isRecording ? Icons.stop : Icons.mic,
                   size: 40,
