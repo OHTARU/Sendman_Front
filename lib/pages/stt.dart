@@ -101,10 +101,16 @@ class _SttPage extends State<SttPage> {
         print(result);
         // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("녹음 한 내용을 저장하였습니다.")),
+          const SnackBar(content: Text("녹음 한 내용을 저장하였습니다.",
+            style: TextStyle(fontSize: 34),)),
         );
       } else {
-        print('파일 전송 실패, 응답 코드: ${response.statusCode}');
+        var res = jsonDecode(utf8.decode(await response.stream.single));
+        print('파일 전송 실패, 응답 코드: ${response.statusCode} 응답 메세지 : $res');
+        setState(() {
+          isSend = false;
+        });
+
       }
     } catch (e) {
       print('오류 발생: $e');
@@ -204,7 +210,17 @@ class _SttPage extends State<SttPage> {
           stopWatchTimer: _stopWatchTimer,
           isMinutes: _isMinutes,
         ),
-        Text((result != "") ? result : ""),
+        Container(
+        alignment: Alignment.topCenter,
+        padding: const EdgeInsets.only(top: 25.0, left: 25.0, right: 25.0),
+        child: TextField(
+          controller: TextEditingController(text: result),
+        style: const TextStyle(fontSize: 20, color: Colors.black),
+        scrollController: ScrollController(),
+        maxLines: 15,
+        minLines: 6,
+        enabled: false,
+        )),
         Column(
           children: [
             Container(
@@ -251,6 +267,7 @@ class _SttPage extends State<SttPage> {
         child: _buildBody(sessionGoogle),
       ),
       drawer: const BaseDrawer(),
+      backgroundColor: Colors.white,
     );
   }
 }

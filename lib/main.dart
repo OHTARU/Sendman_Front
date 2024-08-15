@@ -106,6 +106,7 @@ class _SendManDemoState extends State<SendManDemo> {
         child: _buildBody(sessionGoogle),
       ),
       drawer: const BaseDrawer(),
+      backgroundColor: Colors.white,
     );
   }
 }

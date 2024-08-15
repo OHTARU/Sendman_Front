@@ -198,6 +198,7 @@ class TextToSpeechState extends State<TextToSpeech> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        backgroundColor: Colors.white,
         appBar: BaseAppBar(
           appBar: AppBar(),
           center: true,

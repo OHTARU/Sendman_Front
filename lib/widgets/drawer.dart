@@ -29,6 +29,7 @@ class BaseDrawer extends StatelessWidget {
 
   Drawer buildDrawer(SessionGoogle sessionGoogle, BuildContext context) {
     return Drawer(
+      backgroundColor: Colors.white,
       child: Column(
         children: [
           Expanded(
