@@ -3,9 +3,9 @@ import 'dart:convert';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:http/http.dart' as http;
-import 'app_bar.dart';
-import 'drawer.dart';
-import 'tts_post_dto.dart';
+import '../widgets/app_bar.dart';
+import '../widgets/drawer.dart';
+import '../src/tts_post_dto.dart';
 import 'package:flutter_application_1/src/get_token.dart';
 
 class Ttslist extends StatelessWidget {

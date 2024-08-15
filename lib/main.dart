@@ -1,21 +1,18 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/drawer.dart';
+import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_application_1/src/session.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_application_1/pages/app_bar.dart';
+import 'package:flutter_application_1/widgets/app_bar.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(
     debug: true,
   );
-  // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(
     const MaterialApp(
       title: '이게 왜 진짜 앱?',
@@ -49,7 +46,6 @@ class _SendManDemoState extends State<SendManDemo> {
     print('ready in 1...');
     await Future.delayed(const Duration(seconds: 1));
     print('go!');
-    FlutterNativeSplash.remove();
   }
 
   Future<void> writeToken(String token) async {
@@ -85,7 +81,7 @@ class _SendManDemoState extends State<SendManDemo> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                const Text('로그인 안됨'),
+                const Text('로그인'),
                 buildSignInButton(onPressed: _handleSignIn),
               ],
             ),
