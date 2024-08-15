@@ -68,10 +68,8 @@ class _SendManDemoState extends State<SendManDemo> {
 
   Widget _buildBody(SessionGoogle user) {
     if (user.username != "anonymous") {
-      return Column(
-        children: <Widget>[
-          TextButton(onPressed: () {}, child: const Text("stt"))
-        ],
+      return const Column(
+        children: <Widget>[],
       );
     } else {
       return Column(
