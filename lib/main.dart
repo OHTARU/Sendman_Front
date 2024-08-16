@@ -77,11 +77,11 @@ class _SendManDemoState extends State<SendManDemo> {
       );
     } else {
       return Column(
-        children: [
-          buildLogoScreen(),
-          buildSignInButton(onPressed: _handleSignIn),
-        ],
-      );
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            buildLogoScreen(),
+            buildSignInButton(onPressed: _handleSignIn)
+          ]);
     }
   }
 
