@@ -101,8 +101,11 @@ class _SttPage extends State<SttPage> {
         print(result);
         // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("녹음 한 내용을 저장하였습니다.",
-            style: TextStyle(fontSize: 34),)),
+          const SnackBar(
+              content: Text(
+            "녹음 한 내용을 저장하였습니다.",
+            style: TextStyle(fontSize: 34),
+          )),
         );
       } else {
         var res = jsonDecode(utf8.decode(await response.stream.single));
@@ -110,7 +113,6 @@ class _SttPage extends State<SttPage> {
         setState(() {
           isSend = false;
         });
-
       }
     } catch (e) {
       print('오류 발생: $e');
@@ -211,16 +213,16 @@ class _SttPage extends State<SttPage> {
           isMinutes: _isMinutes,
         ),
         Container(
-        alignment: Alignment.topCenter,
-        padding: const EdgeInsets.only(top: 25.0, left: 25.0, right: 25.0),
-        child: TextField(
-          controller: TextEditingController(text: result),
-        style: const TextStyle(fontSize: 20, color: Colors.black),
-        scrollController: ScrollController(),
-        maxLines: 15,
-        minLines: 6,
-        enabled: false,
-        )),
+            alignment: Alignment.topCenter,
+            padding: const EdgeInsets.only(top: 25.0, left: 25.0, right: 25.0),
+            child: TextField(
+              controller: TextEditingController(text: result),
+              style: const TextStyle(fontSize: 20, color: Colors.black),
+              scrollController: ScrollController(),
+              maxLines: 15,
+              minLines: 6,
+              enabled: false,
+            )),
         Column(
           children: [
             Container(

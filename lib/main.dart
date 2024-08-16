@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_application_1/src/session.dart';
+import 'package:flutter_application_1/widgets/logo_screen.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_application_1/widgets/app_bar.dart';
@@ -76,17 +77,9 @@ class _SendManDemoState extends State<SendManDemo> {
       );
     } else {
       return Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                const Text('로그인'),
-                buildSignInButton(onPressed: _handleSignIn),
-              ],
-            ),
-          ),
+        children: [
+          buildLogoScreen(),
+          buildSignInButton(onPressed: _handleSignIn),
         ],
       );
     }
@@ -104,6 +97,7 @@ class _SendManDemoState extends State<SendManDemo> {
         child: _buildBody(sessionGoogle),
       ),
       drawer: const BaseDrawer(),
+      backgroundColor: Colors.white,
     );
   }
 }
