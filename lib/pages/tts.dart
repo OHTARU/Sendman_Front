@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_application_1/widgets/app_bar.dart';
 import 'package:flutter_application_1/src/session.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -51,73 +51,64 @@ class TextToSpeechState extends State<TextToSpeech> {
     _setAwaitOptions();
 
     if (isAndroid) {
-      _getDefaultEngine();
+      // _getDefaultEngine();
       _getDefaultVoice();
     }
 
     flutterTts.setStartHandler(() {
       setState(() {
-        if (kDebugMode) {
-          print("Playing");
-        }
+        print("Playing");
+
         ttsState = TtsState.playing;
       });
     });
 
     flutterTts.setCompletionHandler(() {
       setState(() {
-        if (kDebugMode) {
-          print("Complete");
-        }
+        print("Complete");
+
         ttsState = TtsState.stopped;
       });
     });
 
     flutterTts.setCancelHandler(() {
       setState(() {
-        if (kDebugMode) {
-          print("Cancel");
-        }
+        print("Cancel");
+
         ttsState = TtsState.stopped;
       });
     });
 
     flutterTts.setContinueHandler(() {
       setState(() {
-        if (kDebugMode) {
-          print("Continued");
-        }
+        print("Continued");
+
         ttsState = TtsState.continued;
       });
     });
 
     flutterTts.setErrorHandler((msg) {
       setState(() {
-        if (kDebugMode) {
-          print("error: $msg");
-        }
+        print("error: $msg");
+
         ttsState = TtsState.stopped;
       });
     });
   }
 
-  Future<dynamic> _getLanguages() async => await flutterTts.getLanguages;
+  // Future<dynamic> _getLanguages() async => await flutterTts.getLanguages;
 
-  Future<void> _getDefaultEngine() async {
-    var engine = await flutterTts.getDefaultEngine;
-    if (engine != null) {
-      if (kDebugMode) {
-        print(engine);
-      }
-    }
-  }
+  // Future<void> _getDefaultEngine() async {
+  //   var engine = await flutterTts.getDefaultEngine;
+  //   if (engine != null) {
+  //     print(engine);
+  //   }
+  // }
 
   Future<void> _getDefaultVoice() async {
     var voice = await flutterTts.getDefaultVoice;
     if (voice != null) {
-      if (kDebugMode) {
-        print(voice);
-      }
+      print(voice);
     }
   }
 
@@ -211,9 +202,9 @@ class TextToSpeechState extends State<TextToSpeech> {
                 height: 200,
               ),
               _inputSection(),
-              _futureBuilder(),
+              // _futureBuilder(),
               const SizedBox(
-                height: 300,
+                height: 260,
               ),
               Text(
                 isPlaying ? '재생 중' : '입력 후 하단 버튼을 눌러 재생',
@@ -250,17 +241,17 @@ class TextToSpeechState extends State<TextToSpeech> {
     );
   }
 
-  Widget _futureBuilder() => FutureBuilder<dynamic>(
-      future: _getLanguages(),
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if (snapshot.hasData) {
-          return _languageDropDownSection(snapshot.data as List<dynamic>);
-        } else if (snapshot.hasError) {
-          return const Text('Error loading languages...');
-        } else
-          // ignore: curly_braces_in_flow_control_structures
-          return const Text('Loading Languages...');
-      });
+  // Widget _futureBuilder() => FutureBuilder<dynamic>(
+  //     future: _getLanguages(),
+  //     builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+  //       if (snapshot.hasData) {
+  //         return _languageDropDownSection(snapshot.data as List<dynamic>);
+  //       } else if (snapshot.hasError) {
+  //         return const Text('Error loading languages...');
+  //       } else
+  //         // ignore: curly_braces_in_flow_control_structures
+  //         return const Text('Loading Languages...');
+  //     });
 
   Widget _inputSection() => Container(
       alignment: Alignment.topCenter,
@@ -276,13 +267,13 @@ class TextToSpeechState extends State<TextToSpeech> {
         },
       ));
 
-  Widget _languageDropDownSection(List<dynamic> languages) => Container(
-      padding: const EdgeInsets.only(top: 10.0),
-      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        DropdownButton(
-          value: language,
-          items: getLanguageDropDownMenuItems(languages),
-          onChanged: changedLanguageDropDownItem,
-        )
-      ]));
+  // Widget _languageDropDownSection(List<dynamic> languages) => Container(
+  //     padding: const EdgeInsets.only(top: 10.0),
+  //     child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+  //       DropdownButton(
+  //         value: language,
+  //         items: getLanguageDropDownMenuItems(languages),
+  //         onChanged: changedLanguageDropDownItem,
+  //       )
+  //     ]));
 }

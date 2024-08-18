@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:http/http.dart' as http;
 import '../widgets/app_bar.dart';
 import '../widgets/drawer.dart';
 import '../src/tts_post_dto.dart';
-import 'package:flutter_application_1/src/get_token.dart';
+import '../src/get_token.dart';
 
 class Ttslist extends StatelessWidget {
   const Ttslist({super.key});
@@ -60,6 +59,7 @@ class TtsListState extends State<TtsList> {
         if (response.bodyBytes.isNotEmpty) {
           Map<String, dynamic> responseList2 =
               jsonDecode(utf8.decode(response.bodyBytes));
+          print("파싱된 Json 데이터임 _fetchPage에 있음 : $responseList2");
           var result = TtsPostsList.fromJson(responseList2['data']);
 
           final isLastPage = responseList2['data']['totalPages'] <= pageKey;
@@ -112,30 +112,34 @@ class PostItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 300,
-      width: 100,
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(11),
-        ),
-        color: Color(0xffD9D9D9),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              (text.trim().isEmpty) ? "제목 없음" : text,
-              style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold),
-            )
-          ],
-        ),
-      ),
-    );
+    return SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Container(
+          height: 300,
+          width: 100,
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(
+              Radius.circular(11),
+            ),
+            color: Color(0xffD9D9D9),
+          ),
+          child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      (text.trim().isEmpty) ? "제목 없음" : text,
+                      style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold),
+                    )
+                  ],
+                ),
+              )),
+        ));
   }
 }

@@ -99,16 +99,16 @@ class _SendManDemoState extends State<SendManDemo> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: List.generate(
-                            5,
-                            (index) => Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: Container(
-                                    width: 140,
-                                    height: 210,
-                                    color: Colors.grey,
-                                  ),
-                                )),
+                          5,
+                          (index) => Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: Container(
+                              width: 140,
+                              height: 210,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
                       ),
                     )
                   ],
@@ -118,15 +118,15 @@ class _SendManDemoState extends State<SendManDemo> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   buildListTile(
-                      context, Icons.mic, '음성', const SttPage(), Colors.green),
+                      context, Icons.mic, '음성', const SttPage(), listTile1),
                   buildListTile(context, Icons.text_format, '텍스트',
-                      const TextToSpeech(), Colors.lightBlue),
-                  buildListTile(context, Icons.image, '사진', const CameraUI(),
-                      Colors.blue),
+                      const TextToSpeech(), listTile2),
+                  buildListTile(
+                      context, Icons.image, '사진', const CameraUI(), listTile3),
                   buildListTile(context, Icons.circle_sharp, '음성텍스트 리스트',
-                      const SttList(), Colors.blue.shade900),
+                      const SttList(), listTile4),
                   buildListTile(context, Icons.attach_file, '사진텍스트 리스트',
-                      const TtsList(), mainBlueColor),
+                      const TtsList(), listTile5),
                 ],
               ),
             ],

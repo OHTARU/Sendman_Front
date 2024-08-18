@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/widgets/swatch.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
@@ -44,9 +43,7 @@ class _SttPage extends State<SttPage> {
       await Permission.storage.request();
       await _recorder!.openRecorder();
     } catch (e) {
-      if (kDebugMode) {
-        print('권한 요청 중 오류: $e');
-      }
+      print('권한 요청 중 오류: $e');
     }
   }
 
@@ -180,9 +177,7 @@ class _SttPage extends State<SttPage> {
       // file = File(filePath.toString());
       // print(file.toString());
     } catch (e) {
-      if (kDebugMode) {
-        print("녹음 중지 오류: $e");
-      }
+      print("녹음 중지 오류: $e");
     }
   }
 
