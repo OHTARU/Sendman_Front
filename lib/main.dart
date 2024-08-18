@@ -1,6 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/colors/colors.dart';
+import 'package:flutter_application_1/pages/camera_ui.dart';
+import 'package:flutter_application_1/pages/stt.dart';
+import 'package:flutter_application_1/pages/stt_list.dart';
+import 'package:flutter_application_1/pages/tts.dart';
+import 'package:flutter_application_1/pages/tts_list.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_application_1/src/session.dart';
 import 'package:flutter_application_1/widgets/logo_screen.dart';
@@ -71,18 +77,98 @@ class _SendManDemoState extends State<SendManDemo> {
   }
 
   Widget _buildBody(SessionGoogle user) {
-    if (user.username != "anonymous") {
-      return const Column(
-        children: <Widget>[],
-      );
-    } else {
-      return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            buildLogoScreen(),
-            buildSignInButton(onPressed: _handleSignIn)
-          ]);
-    }
+    return Builder(
+      builder: (BuildContext context) {
+        if (user.username != "anonymous") {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 40, 0, 40),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('최근 대화',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 20)),
+                    const SizedBox(height: 30),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List.generate(
+                            5,
+                            (index) => Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: Container(
+                                    width: 140,
+                                    height: 210,
+                                    color: Colors.grey,
+                                  ),
+                                )),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  buildListTile(
+                      context, Icons.mic, '음성', const SttPage(), Colors.green),
+                  buildListTile(context, Icons.text_format, '텍스트',
+                      const TextToSpeech(), Colors.lightBlue),
+                  buildListTile(context, Icons.image, '사진', const CameraUI(),
+                      Colors.blue),
+                  buildListTile(context, Icons.circle_sharp, '음성텍스트 리스트',
+                      const SttList(), Colors.blue.shade900),
+                  buildListTile(context, Icons.attach_file, '사진텍스트 리스트',
+                      const TtsList(), mainBlueColor),
+                ],
+              ),
+            ],
+          );
+        } else {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              buildLogoScreen(),
+              buildSignInButton(onPressed: _handleSignIn)
+            ],
+          );
+        }
+      },
+    );
+  }
+
+  ListTile buildListTile(BuildContext context, IconData icon, String title,
+      Widget destinationPage, Color backTileColor) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+      tileColor: backTileColor,
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon),
+              Text(title,
+                  textAlign: TextAlign.start,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w500, fontSize: 20)),
+            ],
+          ),
+        ],
+      ),
+      onTap: () {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => destinationPage));
+      },
+    );
   }
 
   @override
