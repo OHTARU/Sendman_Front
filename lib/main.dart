@@ -105,10 +105,23 @@ class _SendManDemoState extends State<SendManDemo> {
                           5,
                           (index) => Padding(
                             padding: const EdgeInsets.only(right: 20),
-                            child: Container(
-                              width: 140,
-                              height: 210,
-                              color: Colors.grey,
+                            child: InkWell(
+                              onTap: () {
+                                switch (index) {
+                                  case 0:
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const TtsList(),
+                                      ),
+                                    );
+                                }
+                              },
+                              child: Container(
+                                width: 140,
+                                height: 210,
+                                color: Colors.grey,
+                              ),
                             ),
                           ),
                         ),

@@ -137,7 +137,7 @@ class PostItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      (text.trim().isEmpty) ? "제목 없음" : text,
+                      text,
                       style: const TextStyle(
                           color: Colors.black,
                           fontSize: 25,
