@@ -165,7 +165,6 @@ class _SendManDemoState extends State<SendManDemo> {
                                         borderRadius: BorderRadius.circular(15),
                                         color: Color(0xFFD5D5D5),
                                       ),
-                                      color: Colors.grey,
                                       child: Text(result![index].text),
                                     ),
                                   ),

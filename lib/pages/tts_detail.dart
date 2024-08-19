@@ -117,6 +117,7 @@ class TtsDetailState extends State<TtsDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Colors.white,
         appBar: BaseAppBar(
           appBar: AppBar(),
           center: true,
