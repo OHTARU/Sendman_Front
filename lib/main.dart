@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/pages/camera_ui.dart';
 import 'package:flutter_application_1/pages/stt.dart';
-import 'package:flutter_application_1/pages/stt_list.dart';
+// import 'package:flutter_application_1/pages/stt_list.dart';
 import 'package:flutter_application_1/pages/tts.dart';
+import 'package:flutter_application_1/pages/tts_detail.dart';
 import 'package:flutter_application_1/pages/tts_list.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_application_1/src/session.dart';
@@ -123,10 +124,10 @@ class _SendManDemoState extends State<SendManDemo> {
                       const TextToSpeech(), listTile2),
                   buildListTile(
                       context, Icons.image, '사진', const CameraUI(), listTile3),
-                  buildListTile(context, Icons.circle_sharp, '음성텍스트 리스트',
-                      const SttList(), listTile4),
                   buildListTile(context, Icons.attach_file, '사진텍스트 리스트',
-                      const TtsList(), listTile5),
+                      const TtsList(), listTile4),
+                  buildListTile(context, Icons.abc, '디테일',
+                      const TtsDetail(recognizedText: ''), listTile5)
                 ],
               ),
             ],

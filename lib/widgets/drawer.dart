@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/camera_ui.dart';
 import 'package:flutter_application_1/pages/tts.dart';
-import 'package:flutter_application_1/pages/stt_list.dart';
+// import 'package:flutter_application_1/pages/stt_list.dart';
 import 'package:flutter_application_1/pages/stt.dart';
 import 'package:flutter_application_1/pages/tts_list.dart';
 import 'package:flutter_application_1/src/session.dart';
@@ -62,8 +62,6 @@ class BaseDrawer extends StatelessWidget {
                     context, Icons.mic, "글자 - 음성", const TextToSpeech()),
                 buildListTile(
                     context, Icons.image, "사진 - 글자", const CameraUI()),
-                buildListTile(
-                    context, Icons.attach_file, "음성 텍스트 보기", const SttList()),
                 buildListTile(
                     context, Icons.attach_file, "사진 텍스트 보기", const TtsList()),
               ],

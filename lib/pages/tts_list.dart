@@ -47,7 +47,7 @@ class TtsListState extends State<TtsList> {
   Future<void> _fetchPage(int pageKey) async {
     try {
       String token = await _getToken.readToken();
-      var url = Uri.parse("http://13.125.54.112:8080/list?page=$pageKey");
+      var url = Uri.parse("http://13.125.54.112:8080/list");
 
       Map<String, String> headers = {
         "Authorization": "Bearer $token",
