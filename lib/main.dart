@@ -15,9 +15,12 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_application_1/widgets/app_bar.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   await FlutterDownloader.initialize(
     debug: true,
   );
@@ -50,13 +53,12 @@ class _SendManDemoState extends State<SendManDemo> {
     setState(() {
       sessionGoogle;
     });
-    print('ready in 3...');
-    await Future.delayed(const Duration(seconds: 1));
     print('ready in 2...');
     await Future.delayed(const Duration(seconds: 1));
     print('ready in 1...');
     await Future.delayed(const Duration(seconds: 1));
     print('go!');
+    FlutterNativeSplash.remove();
   }
 
   Future<void> writeToken(String token) async {
@@ -93,7 +95,7 @@ class _SendManDemoState extends State<SendManDemo> {
                     const Text('최근 대화',
                         style: TextStyle(
                             fontWeight: FontWeight.w500, fontSize: 20)),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 23),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(

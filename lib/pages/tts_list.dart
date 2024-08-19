@@ -96,7 +96,8 @@ class TtsListState extends State<TtsList> {
           builderDelegate: PagedChildBuilderDelegate<TtsPost>(
             itemBuilder: (context, item, index) => Padding(
               padding: const EdgeInsets.all(15.0),
-              child: PostItem(item.text, item.createdDate),
+              child: PostItem(
+                  item.id, item.text, item.createdDate, item.type, item.url),
             ),
           ),
         ),
@@ -108,7 +109,12 @@ class TtsListState extends State<TtsList> {
 class PostItem extends StatelessWidget {
   final String createDate;
   final String text;
-  const PostItem(this.text, this.createDate, {super.key});
+  final int id;
+  final String type;
+  final String url;
+
+  const PostItem(this.id, this.text, this.createDate, this.type, this.url,
+      {super.key});
 
   @override
   Widget build(BuildContext context) {

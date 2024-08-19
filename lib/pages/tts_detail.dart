@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/widgets/app_bar.dart';
+import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter/services.dart'; // Clipboard 관련 클래스 포함
 
@@ -31,6 +33,7 @@ class TtsDetailState extends State<TtsDetail> {
 
     // TTS 재생 시작 시 상태를 업데이트
     flutterTts.setStartHandler(() {
+      if (!mounted) return;
       setState(() {
         ttsState = TtsState.playing;
       });
@@ -38,6 +41,7 @@ class TtsDetailState extends State<TtsDetail> {
 
     // TTS 재생 완료 시 상태를 업데이트
     flutterTts.setCompletionHandler(() {
+      if (!mounted) return;
       setState(() {
         ttsState = TtsState.stopped;
       });
@@ -45,6 +49,7 @@ class TtsDetailState extends State<TtsDetail> {
 
     // TTS 취소 시 상태를 업데이트
     flutterTts.setCancelHandler(() {
+      if (!mounted) return;
       setState(() {
         ttsState = TtsState.stopped;
       });
@@ -58,13 +63,15 @@ class TtsDetailState extends State<TtsDetail> {
         // 텍스트가 있을 경우 TTS로 읽기 시작
         await flutterTts.speak(widget.recognizedText);
       } else {
+        if (!mounted) return; // 위젯이 마운트되었는지 확인
         // 텍스트가 비어있을 경우 경고 메시지 출력
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('입력된 텍스트가 없습니다.')),
+          const SnackBar(content: Text('텍스트가 없습니다.')),
         );
       }
     } catch (e) {
       // 오류 발생 시 콘솔에 출력하고 사용자에게 알림
+      if (!mounted) return; // 위젯이 마운트되었는지 확인
       print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('음성 재생에 실패했습니다.')),
@@ -76,9 +83,13 @@ class TtsDetailState extends State<TtsDetail> {
   Future<void> _stop() async {
     try {
       var result = await flutterTts.stop();
-      if (result == 1) setState(() => ttsState = TtsState.stopped);
+      if (result == 1) {
+        if (!mounted) return; // 위젯이 마운트되었는지 확인
+        setState(() => ttsState = TtsState.stopped);
+      }
     } catch (e) {
       // 오류 발생 시 콘솔에 출력하고 사용자에게 알림
+      if (!mounted) return; // 위젯이 마운트되었는지 확인
       print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('음성 정지에 실패했습니다.')),
@@ -106,22 +117,16 @@ class TtsDetailState extends State<TtsDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.content_copy),
-            onPressed: _copyToClipboard, // 복사 기능 연결
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // 인식된 텍스트가 있으면 텍스트를 표시
-            if (widget.recognizedText.isNotEmpty)
+        appBar: BaseAppBar(
+          appBar: AppBar(),
+          center: true,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // 인식된 텍스트가 있으면 텍스트를 표시하고, 없으면 '텍스트 추출 오류' 표시
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -138,36 +143,50 @@ class TtsDetailState extends State<TtsDetail> {
                   ],
                 ),
                 child: Text(
-                  widget.recognizedText,
-                  style: const TextStyle(
+                  widget.recognizedText.isNotEmpty
+                      ? widget.recognizedText
+                      : '텍스트 추출 오류',
+                  style: TextStyle(
                     fontSize: 18, // 텍스트 크기
-                    color: Colors.black87, // 텍스트 색상
+                    color: widget.recognizedText.isNotEmpty
+                        ? Colors.black87 // 텍스트가 있을 경우 검정색
+                        : Colors.grey, // 텍스트가 없을 경우 회색
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
-            const SizedBox(height: 20),
-            // 재생 및 정지 버튼
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25), // 둥근 모서리
+              const SizedBox(height: 10),
+              // 클립보드 복사 버튼
+              Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  icon: const Icon(Icons.content_copy),
+                  onPressed: _copyToClipboard,
+                  tooltip: '클립보드에 복사',
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                backgroundColor: isPlaying ? Colors.red : Colors.blue,
               ),
-              onPressed: widget.recognizedText.isNotEmpty
-                  ? (isPlaying ? _stop : _speak) // 상태에 따라 재생 또는 정지
-                  : null,
-              child: Icon(
-                isPlaying ? Icons.stop : Icons.play_arrow, // 상태에 따른 아이콘 변경
-                size: 30,
+              const SizedBox(height: 20),
+              // 재생 및 정지 버튼
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25), // 둥근 모서리
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  backgroundColor: isPlaying ? Colors.red : Colors.blue,
+                ),
+                onPressed: widget.recognizedText.isNotEmpty
+                    ? (isPlaying ? _stop : _speak) // 상태에 따라 재생 또는 정지
+                    : null,
+                child: Icon(
+                  isPlaying ? Icons.stop : Icons.play_arrow, // 상태에 따른 아이콘 변경
+                  size: 30,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+        drawer: const BaseDrawer());
   }
 }
