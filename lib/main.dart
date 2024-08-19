@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/pages/camera_ui.dart';
 import 'package:flutter_application_1/pages/stt.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_application_1/pages/stt.dart';
 import 'package:flutter_application_1/pages/tts.dart';
 import 'package:flutter_application_1/pages/tts_detail.dart';
 import 'package:flutter_application_1/pages/tts_list.dart';
+import 'package:flutter_application_1/widgets/custom_toast.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_application_1/src/session.dart';
 import 'package:flutter_application_1/widgets/logo_screen.dart';
@@ -188,40 +190,33 @@ class _SendManDemoState extends State<SendManDemo> {
     );
   }
 
-  DateTime? currentBackPressTime;
 
-  Future<bool> onWillPop() async {
-    DateTime now = DateTime.now();
 
-    if (currentBackPressTime == null ||
-        now.difference(currentBackPressTime!) > const Duration(seconds: 2)) {
-      currentBackPressTime = now;
+@override
+Widget build(BuildContext context) {
+  return PopScope(
+    canPop: false,
+    onPopInvoked: (didPop) async {
+      if (didPop) return;
 
-      const msg = "'뒤로'버튼을 한 번 더 누르면 종료됩니다.";
-      Fluttertoast.showToast(msg: msg);
-
-      return Future.value(false);
-    }
-
-    return Future.value(true);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+      final shouldExit = CustomToast.showExitToast(); // context 제거
+      if (shouldExit) {
+        SystemNavigator.pop(); // 앱 즉시 종료
+      }
+    },
+    child: Scaffold(
       appBar: BaseAppBar(
         appBar: AppBar(),
         center: true,
       ),
-      body: WillPopScope(
-        onWillPop: onWillPop,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints.expand(),
-          child: _buildBody(sessionGoogle),
-        ),
+      body: ConstrainedBox(
+        constraints: const BoxConstraints.expand(),
+        child: _buildBody(sessionGoogle),
       ),
       drawer: const BaseDrawer(),
       backgroundColor: Colors.white,
-    );
-  }
+    ),
+  );
+}
+
 }
