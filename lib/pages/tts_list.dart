@@ -77,11 +77,8 @@ class TtsListState extends State<TtsList> {
             child: PagedListView<int, TtsPost>(
               pagingController: _pagingController,
               builderDelegate: PagedChildBuilderDelegate<TtsPost>(
-                itemBuilder: (context, item, index) => Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: PostItem(item.id, item.url, item.text,
-                      item.createdDate, item.type),
-                ),
+                itemBuilder: (context, item, index) => PostItem(
+                    item.id, item.url, item.text, item.createdDate, item.type),
               ),
             ),
           );
@@ -108,8 +105,8 @@ class PostItem extends StatelessWidget {
 
   Container _iconContainer(IconData icon, Color color) {
     return Container(
-      margin: const EdgeInsets.all(10.0),
-      color: color,
+      decoration:
+          BoxDecoration(borderRadius: BorderRadius.circular(15), color: color),
       width: 70.0,
       height: 70.0,
       child: Icon(icon),
@@ -135,23 +132,27 @@ class PostItem extends StatelessWidget {
             color: Color.fromARGB(255, 255, 255, 255),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5),
+            padding: const EdgeInsets.only(left: 7),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        (text.trim().isEmpty) ? "제목 없음" : text,
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold),
-                      )
-                    ],
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          (text.trim().isEmpty) ? "제목 없음" : text,
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 3,
+                        )
+                      ],
+                    ),
                   ),
                 ),
                 (type == 'STT')

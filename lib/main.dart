@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/pages/camera_ui.dart';
 import 'package:flutter_application_1/pages/stt.dart';
-// import 'package:flutter_application_1/pages/stt_list.dart';
 import 'package:flutter_application_1/pages/tts.dart';
-import 'package:flutter_application_1/pages/tts_detail.dart';
 import 'package:flutter_application_1/pages/tts_list.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_application_1/src/session.dart';
@@ -54,11 +52,11 @@ class _SendManDemoState extends State<SendManDemo> {
     setState(() {
       sessionGoogle;
     });
-    print('ready in 2...');
+    print('2초 남았어용');
     await Future.delayed(const Duration(seconds: 1));
-    print('ready in 1...');
+    print('이제 1초면 이동');
     await Future.delayed(const Duration(seconds: 1));
-    print('go!');
+    print('출력');
     FlutterNativeSplash.remove();
   }
 
@@ -93,7 +91,7 @@ class _SendManDemoState extends State<SendManDemo> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('최근 대화',
+                    const Text('최근 대화 목록',
                         style: TextStyle(
                             fontWeight: FontWeight.w500, fontSize: 20)),
                     const SizedBox(height: 23),
@@ -119,9 +117,12 @@ class _SendManDemoState extends State<SendManDemo> {
                                 }
                               },
                               child: Container(
-                                width: 140,
+                                width: 160,
                                 height: 210,
-                                color: Colors.grey,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  color: Color(0xFFD5D5D5),
+                                ),
                               ),
                             ),
                           ),
@@ -142,8 +143,6 @@ class _SendManDemoState extends State<SendManDemo> {
                       context, Icons.image, '사진', const CameraUI(), listTile3),
                   buildListTile(context, Icons.attach_file, '사진텍스트 리스트',
                       const TtsList(), listTile4),
-                  buildListTile(context, Icons.abc, '디테일',
-                      const TtsDetail(recognizedText: ''), listTile5)
                 ],
               ),
             ],
@@ -164,7 +163,7 @@ class _SendManDemoState extends State<SendManDemo> {
   ListTile buildListTile(BuildContext context, IconData icon, String title,
       Widget destinationPage, Color backTileColor) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+      contentPadding: const EdgeInsets.symmetric(vertical: 15),
       tileColor: backTileColor,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -172,11 +171,16 @@ class _SendManDemoState extends State<SendManDemo> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon),
+              Icon(
+                icon,
+                color: Colors.white,
+              ),
               Text(title,
                   textAlign: TextAlign.start,
                   style: const TextStyle(
-                      fontWeight: FontWeight.w500, fontSize: 20)),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 20,
+                      color: Colors.white)),
             ],
           ),
         ],
