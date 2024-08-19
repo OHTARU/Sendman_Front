@@ -12,6 +12,7 @@ import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_application_1/src/session.dart';
 import 'package:flutter_application_1/widgets/logo_screen.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_application_1/widgets/app_bar.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
@@ -109,11 +110,11 @@ class _SendManDemoState extends State<SendManDemo> {
                               onTap: () {
                                 switch (index) {
                                   case 0:
-                                    Navigator.push(
+                                    Navigator.pushNamedAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => const TtsList(),
-                                      ),
+                                      ) as String,(route) => false
                                     );
                                 }
                               },
@@ -186,20 +187,43 @@ class _SendManDemoState extends State<SendManDemo> {
       },
     );
   }
+DateTime? currentBackPressTime;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: BaseAppBar(
-        appBar: AppBar(),
-        center: true,
-      ),
-      body: ConstrainedBox(
+Future<bool> onWillPop() async {
+  DateTime now = DateTime.now();
+
+  if (currentBackPressTime == null ||
+      now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
+    currentBackPressTime = now;
+
+    final msg = "'뒤로'버튼을 한 번 더 누르면 종료됩니다.";
+    Fluttertoast.showToast(msg: msg);
+
+    return Future.value(false);
+  }
+
+  return Future.value(true);
+}
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: BaseAppBar(
+      appBar: AppBar(),
+      center: true,
+    ),
+    body: WillPopScope(
+      onWillPop: onWillPop,
+      child: ConstrainedBox(
         constraints: const BoxConstraints.expand(),
         child: _buildBody(sessionGoogle),
       ),
-      drawer: const BaseDrawer(),
-      backgroundColor: Colors.white,
-    );
-  }
+    ),
+    drawer: const BaseDrawer(),
+    backgroundColor: Colors.white,
+  );
+}
+
+
+
 }
