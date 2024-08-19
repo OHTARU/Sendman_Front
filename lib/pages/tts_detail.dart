@@ -174,30 +174,27 @@ class TtsDetailState extends State<TtsDetail> {
                         color: Color(0xFFF9F9F9), // 배경색
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal, // 가로 방향 스크롤 활성화
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical, // 세로 방향 스크롤 활성화
-                              child: Center(
-                                child: Text(
-                                  widget.recognizedText.isNotEmpty
-                                      ? widget.recognizedText
-                                      : '텍스트 추출 오류',
-                                  style: TextStyle(
-                                      fontSize: 34, // 텍스트 크기
-                                      color: widget.recognizedText.isNotEmpty
-                                          ? Colors.black87 // 텍스트가 있을 경우 검정색
-                                          : Colors.grey, // 텍스트가 없을 경우 회색
-                                      fontWeight: FontWeight.w600),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal, // 가로 방향 스크롤 활성화
+                        child: Container(
+                          width: 350, // 중요: 가로 스크롤 내부 컨테이너의 너비 지정
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical, // 세로 방향 스크롤 활성화
+                            child: Text(
+                              widget.recognizedText.isNotEmpty
+                                  ? widget.recognizedText
+                                  : '텍스트 추출 오류',
+                              style: TextStyle(
+                                  fontSize: 34, // 텍스트 크기
+                                  color: widget.recognizedText.isNotEmpty
+                                      ? Colors.black87
+                                      : Colors.grey, // 색상
+                                  fontWeight: FontWeight.w600 // 폰트 두께
+                                  ),
+                              textAlign: TextAlign.center, // 텍스트 중앙 정렬
                             ),
-                          )
-                        ],
+                          ),
+                        ),
                       ),
                     ),
                     Text(widget.date,
