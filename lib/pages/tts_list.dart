@@ -47,21 +47,18 @@ class TtsListState extends State<TtsList> {
   Future<void> _fetchPage(int pageKey) async {
     try {
       String token = await _getToken.readToken();
-      var url = Uri.parse("http://13.125.54.112:8080/list");
+      var url = Uri.parse("http://13.125.54.112:8080/list?page=$pageKey");
 
       Map<String, String> headers = {
         "Authorization": "Bearer $token",
       };
 
       var response = await http.get(url, headers: headers);
-
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        if (response.bodyBytes.isNotEmpty) {
           Map<String, dynamic> responseList2 =
               jsonDecode(utf8.decode(response.bodyBytes));
-          print("파싱된 Json 데이터임 _fetchPage에 있음 : $responseList2");
           var result = TtsPostsList.fromJson(responseList2['data']);
-
+          print(responseList2);
           final isLastPage = responseList2['data']['totalPages'] <= pageKey;
           if (isLastPage) {
             _pagingController.appendLastPage(result.posts);
@@ -69,10 +66,8 @@ class TtsListState extends State<TtsList> {
             final nextPageKey = pageKey + 1;
             _pagingController.appendPage(result.posts, nextPageKey);
           }
-        } else {
-          _pagingController.error = "responseBody is Empty";
-        }
       } else {
+        print("안넘어가짐");
         _pagingController.error =
             "Failed to fetch data. Status code: ${response.statusCode}";
       }
@@ -96,8 +91,7 @@ class TtsListState extends State<TtsList> {
           builderDelegate: PagedChildBuilderDelegate<TtsPost>(
             itemBuilder: (context, item, index) => Padding(
               padding: const EdgeInsets.all(15.0),
-              child: PostItem(
-                  item.id, item.text, item.createdDate, item.type, item.url),
+              child: PostItem(item.id,item.url, item.text,item.createdDate,item.type),
             ),
           ),
         ),
@@ -107,14 +101,12 @@ class TtsListState extends State<TtsList> {
 }
 
 class PostItem extends StatelessWidget {
-  final String createDate;
-  final String text;
   final int id;
+  final String? url;
+  final String text;
+  final String createdDate;
   final String type;
-  final String url;
-
-  const PostItem(this.id, this.text, this.createDate, this.type, this.url,
-      {super.key});
+  const PostItem(this.id,this.url,this.text,this.createdDate,this.type, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +129,7 @@ class PostItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      text,
+                      (text.trim().isEmpty) ? "제목 없음" : text,
                       style: const TextStyle(
                           color: Colors.black,
                           fontSize: 25,

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class TtsPostsList {
@@ -7,16 +8,14 @@ class TtsPostsList {
 
   factory TtsPostsList.fromJson(Map<String, dynamic> parsedJson) {
     var list = parsedJson['content'] as List;
-
     List<TtsPost> postList = list.map((i) => TtsPost.fromJson(i)).toList();
-
     return TtsPostsList(posts: postList);
   }
 }
 
 class TtsPost {
   final int id;
-  final String url;
+  final String? url;
   final String text;
   final String createdDate;
   final String type;
@@ -28,11 +27,14 @@ class TtsPost {
     String text = json['text'];
     String createdDate = json['createdDate'];
     String type = json['type'];
-    String url = json['url'];
+    String? url = json['url'];
+    print(createdDate);
     DateTime date = DateTime.parse(createdDate);
-    DateFormat dateFormat = DateFormat('yy.MM.dd aa hh:mm', 'ko');
-    dateFormat.format(date);
-    return TtsPost(id: id,url: url,createdDate: dateFormat.toString(), text: text, type: type);
+    print(date);
+    String cd = DateFormat('yy.MM.dd a h:mm').format(date);
+    print(cd);
+
+    return TtsPost(id: id, url: url,createdDate: cd, text: text, type: type);
 
   }
 }
