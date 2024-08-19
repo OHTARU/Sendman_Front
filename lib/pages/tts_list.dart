@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/tts_detail.dart';
 import 'dart:convert';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:http/http.dart' as http;
@@ -6,17 +7,6 @@ import '../widgets/app_bar.dart';
 import '../widgets/drawer.dart';
 import '../src/tts_post_dto.dart';
 import '../src/get_token.dart';
-
-class Ttslist extends StatelessWidget {
-  const Ttslist({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: TtsList(),
-    );
-  }
-}
 
 class TtsList extends StatefulWidget {
   const TtsList({super.key});
@@ -28,51 +18,43 @@ class TtsList extends StatefulWidget {
 class TtsListState extends State<TtsList> {
   final PagingController<int, TtsPost> _pagingController =
       PagingController(firstPageKey: 1);
-  final GetToken _getToken = GetToken();
+  Future? _initialLoad;
 
   @override
   void initState() {
+    super.initState();
+    _initialLoad = _initializePage();
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
     });
-    super.initState();
   }
 
-  @override
-  void dispose() {
-    _pagingController.dispose();
-    super.dispose();
+  Future<void> _initializePage() async {
+    String token = await GetToken().readToken();
+    await _fetchPage(1, token);
   }
 
-  Future<void> _fetchPage(int pageKey) async {
-    try {
-      String token = await _getToken.readToken();
-      var url = Uri.parse("http://13.125.54.112:8080/list?page=$pageKey");
+  Future<void> _fetchPage(int pageKey, [String? token]) async {
+    token ??= await GetToken().readToken();
+    var url = Uri.parse("http://13.125.54.112:8080/list?page=$pageKey");
 
-      Map<String, String> headers = {
-        "Authorization": "Bearer $token",
-      };
+    Map<String, String> headers = {"Authorization": "Bearer $token"};
+    var response = await http.get(url, headers: headers);
 
-      var response = await http.get(url, headers: headers);
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-          Map<String, dynamic> responseList2 =
-              jsonDecode(utf8.decode(response.bodyBytes));
-          var result = TtsPostsList.fromJson(responseList2['data']);
-          print(responseList2);
-          final isLastPage = responseList2['data']['totalPages'] <= pageKey;
-          if (isLastPage) {
-            _pagingController.appendLastPage(result.posts);
-          } else {
-            final nextPageKey = pageKey + 1;
-            _pagingController.appendPage(result.posts, nextPageKey);
-          }
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      Map<String, dynamic> responseList =
+          jsonDecode(utf8.decode(response.bodyBytes));
+      var result = TtsPostsList.fromJson(responseList['data']);
+      final isLastPage = responseList['data']['totalPages'] <= pageKey;
+      if (isLastPage) {
+        _pagingController.appendLastPage(result.posts);
       } else {
-        print("안넘어가짐");
-        _pagingController.error =
-            "Failed to fetch data. Status code: ${response.statusCode}";
+        final nextPageKey = pageKey + 1;
+        _pagingController.appendPage(result.posts, nextPageKey);
       }
-    } catch (e) {
-      _pagingController.error = e.toString();
+    } else {
+      _pagingController.error =
+          "Failed to fetch data. Status code: ${response.statusCode}";
     }
   }
 
@@ -82,21 +64,36 @@ class TtsListState extends State<TtsList> {
       backgroundColor: Colors.white,
       appBar: BaseAppBar(appBar: AppBar(), center: true),
       drawer: const BaseDrawer(),
-      body: RefreshIndicator(
-        //새로고침 package안에 들어있는 키워드
-        onRefresh: () =>
-            Future.sync(() => _pagingController.refresh()), //새로고침시 초기화
-        child: PagedListView<int, TtsPost>(
-          pagingController: _pagingController, //저장했던 정보들
-          builderDelegate: PagedChildBuilderDelegate<TtsPost>(
-            itemBuilder: (context, item, index) => Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: PostItem(item.id,item.url, item.text,item.createdDate,item.type),
+      body: FutureBuilder(
+        future: _initialLoad,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          return RefreshIndicator(
+            onRefresh: () => Future.sync(() => _pagingController.refresh()),
+            child: PagedListView<int, TtsPost>(
+              pagingController: _pagingController,
+              builderDelegate: PagedChildBuilderDelegate<TtsPost>(
+                itemBuilder: (context, item, index) => Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: PostItem(item.id, item.url, item.text,
+                      item.createdDate, item.type),
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
   }
 }
 
@@ -106,38 +103,73 @@ class PostItem extends StatelessWidget {
   final String text;
   final String createdDate;
   final String type;
-  const PostItem(this.id,this.url,this.text,this.createdDate,this.type, {super.key});
+  const PostItem(this.id, this.url, this.text, this.createdDate, this.type,
+      {super.key});
+
+  Container _iconContainer(IconData icon, Color color) {
+    return Container(
+      margin: const EdgeInsets.all(10.0),
+      color: color,
+      width: 70.0,
+      height: 70.0,
+      child: Icon(icon),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Container(
-          height: 300,
+      scrollDirection: Axis.vertical,
+      child: ListTile(
+        title: Container(
+          height: 100,
           width: 100,
           decoration: const BoxDecoration(
-            borderRadius: BorderRadius.all(
-              Radius.circular(11),
+            border: Border(
+              bottom: BorderSide(
+                  color: Colors.grey, width: 1, style: BorderStyle.solid),
             ),
-            color: Color(0xffD9D9D9),
+            borderRadius: BorderRadius.all(
+              Radius.circular(15),
+            ),
+            color: Color.fromARGB(255, 255, 255, 255),
           ),
           child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      (text.trim().isEmpty) ? "제목 없음" : text,
-                      style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold),
-                    )
-                  ],
+            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        (text.trim().isEmpty) ? "제목 없음" : text,
+                        style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold),
+                      )
+                    ],
+                  ),
                 ),
-              )),
-        ));
+                (type == 'STT')
+                    ? _iconContainer(Icons.mic, Colors.amber)
+                    : _iconContainer(Icons.image, Colors.red),
+              ],
+            ),
+          ),
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TtsDetail(recognizedText: text),
+            ),
+          );
+        },
+      ),
+    );
   }
 }

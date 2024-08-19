@@ -20,7 +20,12 @@ class TtsPost {
   final String createdDate;
   final String type;
 
-  TtsPost({required this.id,required this.url,required this.text, required this.createdDate, required this.type});
+  TtsPost(
+      {required this.id,
+      required this.url,
+      required this.text,
+      required this.createdDate,
+      required this.type});
 
   factory TtsPost.fromJson(Map<String, dynamic> json) {
     int id = json['id'];
@@ -34,7 +39,6 @@ class TtsPost {
     String cd = DateFormat('yy.MM.dd a h:mm').format(date);
     print(cd);
 
-    return TtsPost(id: id, url: url,createdDate: cd, text: text, type: type);
-
+    return TtsPost(id: id, url: url, createdDate: cd, text: text, type: type);
   }
 }
