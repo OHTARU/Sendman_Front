@@ -132,9 +132,13 @@ class _SendManDemoState extends State<SendManDemo> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('최근 대화',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 20)),
+                    const Text(
+                      '최근 대화',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 5,
+                    ),
                     const SizedBox(height: 23),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -163,9 +167,19 @@ class _SendManDemoState extends State<SendManDemo> {
                                       height: 210,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(15),
-                                        color: Color(0xFFD5D5D5),
+                                        color: containerBackgroundColor,
                                       ),
-                                      child: Text(result![index].text),
+                                      child: Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Text(
+                                          result![index].text,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 20),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 5,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -180,10 +194,22 @@ class _SendManDemoState extends State<SendManDemo> {
                 children: [
                   buildListTile(
                       context, Icons.mic, '음성', const SttPage(), listTile1),
+                  Divider(
+                    color: Colors.black26,
+                    height: 1.2,
+                  ),
                   buildListTile(context, Icons.text_format, '텍스트',
                       const TextToSpeech(), listTile2),
+                  Divider(
+                    color: Colors.black26,
+                    height: 1.2,
+                  ),
                   buildListTile(
                       context, Icons.image, '사진', const CameraUI(), listTile3),
+                  Divider(
+                    color: Colors.black26,
+                    height: 1.2,
+                  ),
                   buildListTile(context, Icons.attach_file, '사진텍스트 리스트',
                       const TtsList(), listTile4),
                 ],
@@ -216,14 +242,15 @@ class _SendManDemoState extends State<SendManDemo> {
             children: [
               Icon(
                 icon,
-                color: Colors.white,
+                color: Colors.black,
+                size: 30,
               ),
               Text(title,
                   textAlign: TextAlign.start,
                   style: const TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 20,
-                      color: Colors.white)),
+                      color: Colors.black)),
             ],
           ),
         ],

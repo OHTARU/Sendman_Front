@@ -105,8 +105,10 @@ class PostItem extends StatelessWidget {
 
   Container _iconContainer(IconData icon, Color color) {
     return Container(
-      decoration:
-          BoxDecoration(borderRadius: BorderRadius.circular(15), color: color),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: color,
+      ),
       width: 70.0,
       height: 70.0,
       child: Icon(icon),
@@ -115,62 +117,43 @@ class PostItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: ListTile(
-        title: Container(
-          height: 100,
-          width: 100,
-          decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                  color: Colors.grey, width: 1, style: BorderStyle.solid),
-            ),
-            borderRadius: BorderRadius.all(
-              Radius.circular(15),
-            ),
-            color: Color.fromARGB(255, 255, 255, 255),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 7),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          (text.trim().isEmpty) ? "제목 없음" : text,
-                          style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 3,
-                        )
-                      ],
-                    ),
-                  ),
+    return ListTile(
+      title: Container(
+        height: 80,
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(15)),
+          color: Color.fromARGB(255, 255, 255, 255),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  (text.trim().isEmpty) ? "제목 없음" : text,
+                  style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis,
                 ),
-                (type == 'STT')
-                    ? _iconContainer(Icons.mic, Colors.amber)
-                    : _iconContainer(Icons.image, Colors.red),
-              ],
-            ),
+              ),
+              (type == 'STT')
+                  ? _iconContainer(Icons.mic, Colors.amber)
+                  : _iconContainer(Icons.image, Colors.red),
+            ],
           ),
         ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TtsDetail(recognizedText: text),
-            ),
-          );
-        },
       ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TtsDetail(recognizedText: text),
+          ),
+        );
+      },
     );
   }
 }
