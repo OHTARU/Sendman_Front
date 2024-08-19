@@ -110,11 +110,11 @@ class _SendManDemoState extends State<SendManDemo> {
                               onTap: () {
                                 switch (index) {
                                   case 0:
-                                    Navigator.pushNamedAndRemoveUntil(
+                                    Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => const TtsList(),
-                                      ) as String,(route) => false
+                                      ),
                                     );
                                 }
                               },
@@ -187,43 +187,41 @@ class _SendManDemoState extends State<SendManDemo> {
       },
     );
   }
-DateTime? currentBackPressTime;
 
-Future<bool> onWillPop() async {
-  DateTime now = DateTime.now();
+  DateTime? currentBackPressTime;
 
-  if (currentBackPressTime == null ||
-      now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
-    currentBackPressTime = now;
+  Future<bool> onWillPop() async {
+    DateTime now = DateTime.now();
 
-    final msg = "'뒤로'버튼을 한 번 더 누르면 종료됩니다.";
-    Fluttertoast.showToast(msg: msg);
+    if (currentBackPressTime == null ||
+        now.difference(currentBackPressTime!) > const Duration(seconds: 2)) {
+      currentBackPressTime = now;
 
-    return Future.value(false);
+      const msg = "'뒤로'버튼을 한 번 더 누르면 종료됩니다.";
+      Fluttertoast.showToast(msg: msg);
+
+      return Future.value(false);
+    }
+
+    return Future.value(true);
   }
 
-  return Future.value(true);
-}
-
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: BaseAppBar(
-      appBar: AppBar(),
-      center: true,
-    ),
-    body: WillPopScope(
-      onWillPop: onWillPop,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints.expand(),
-        child: _buildBody(sessionGoogle),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: BaseAppBar(
+        appBar: AppBar(),
+        center: true,
       ),
-    ),
-    drawer: const BaseDrawer(),
-    backgroundColor: Colors.white,
-  );
-}
-
-
-
+      body: WillPopScope(
+        onWillPop: onWillPop,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints.expand(),
+          child: _buildBody(sessionGoogle),
+        ),
+      ),
+      drawer: const BaseDrawer(),
+      backgroundColor: Colors.white,
+    );
+  }
 }
