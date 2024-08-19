@@ -32,11 +32,8 @@ class TtsPost {
     String createdDate = json['createdDate'];
     String type = json['type'];
     String? url = json['url'];
-    print(createdDate);
     DateTime date = DateTime.parse(createdDate);
-    print(date);
     String cd = DateFormat('yy.MM.dd a h:mm').format(date);
-    print(cd);
 
     return TtsPost(id: id, url: url, createdDate: cd, text: text, type: type);
   }
