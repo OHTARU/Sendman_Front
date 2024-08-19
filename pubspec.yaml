@@ -42,6 +42,7 @@ dependencies:
   camera: ^0.11.0+2
   #스플래시 스크린
   flutter_native_splash: ^2.4.1
+  fluttertoast: ^8.2.8
 
 dependency_overrides:
   js: ^0.7.1
