@@ -1,11 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/pages/camera_ui.dart';
 import 'package:flutter_application_1/pages/stt.dart';
 import 'package:flutter_application_1/pages/tts.dart';
+import 'package:flutter_application_1/pages/tts_detail.dart';
 import 'package:flutter_application_1/pages/tts_list.dart';
+import 'package:flutter_application_1/src/get_token.dart';
+import 'package:flutter_application_1/src/tts_post_dto.dart';
+import 'package:flutter_application_1/widgets/custom_toast.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_application_1/src/session.dart';
 import 'package:flutter_application_1/widgets/logo_screen.dart';
@@ -15,6 +21,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_application_1/widgets/app_bar.dart';
 import 'package:flutter_application_1/src/sign_in_button/moblie.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:http/http.dart' as http;
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +47,9 @@ class SendManDemo extends StatefulWidget {
 
 class _SendManDemoState extends State<SendManDemo> {
   SessionGoogle sessionGoogle = SessionGoogle();
+  List<TtsPost>? result;
+  int textNum = 0;
+
   @override
   //초기 데이터 로드, 컨트롤러 초기화
   void initState() {
@@ -52,8 +62,7 @@ class _SendManDemoState extends State<SendManDemo> {
     setState(() {
       sessionGoogle;
     });
-    print('2초 남았어용');
-    await Future.delayed(const Duration(seconds: 1));
+    await _fetchPage();
     print('이제 1초면 이동');
     await Future.delayed(const Duration(seconds: 1));
     print('출력');
@@ -78,12 +87,44 @@ class _SendManDemoState extends State<SendManDemo> {
     });
   }
 
+  Future<void> _fetchPage() async {
+    String token = await GetToken().readToken();
+    var url = Uri.parse("http://13.125.54.112:8080/list");
+
+    Map<String, String> headers = {"Authorization": "Bearer $token"};
+    var response = await http.get(url, headers: headers);
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      Map<String, dynamic> responseList =
+          jsonDecode(utf8.decode(response.bodyBytes));
+      setState(() {
+        result = TtsPostsList.fromJson(responseList['data']).posts;
+        textNum = result!.length;
+      });
+    } else {
+      Fluttertoast.showToast(
+        msg: "세션이 만료되어 로그아웃 되었습니다!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black.withOpacity(0.8),
+        textColor: Colors.white,
+        fontSize: 20.0,
+      );
+      sessionGoogle = await SessionGoogle.logout();
+      setState(() {
+        sessionGoogle;
+      });
+    }
+  }
+
   Widget _buildBody(SessionGoogle user) {
     return Builder(
       builder: (BuildContext context) {
         if (user.username != "anonymous") {
           return Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 40, 0, 40),
@@ -91,43 +132,46 @@ class _SendManDemoState extends State<SendManDemo> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('최근 대화 목록',
+                    const Text('최근 대화',
                         style: TextStyle(
                             fontWeight: FontWeight.w500, fontSize: 20)),
                     const SizedBox(height: 23),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: List.generate(
-                          5,
-                          (index) => Padding(
-                            padding: const EdgeInsets.only(right: 20),
-                            child: InkWell(
-                              onTap: () {
-                                switch (index) {
-                                  case 0:
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const TtsList(),
+                      child: (textNum == 0)
+                          ? Text("최근 대화가 없습니다!",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500, fontSize: 20))
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: List.generate(
+                                (textNum == 0) ? 0 : textNum,
+                                (index) => Padding(
+                                  padding: const EdgeInsets.only(right: 20),
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => TtsDetail(
+                                                  recognizedText:
+                                                      result![index].text)));
+                                    },
+                                    child: Container(
+                                      width: 160,
+                                      height: 210,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        color: Color(0xFFD5D5D5),
                                       ),
-                                    );
-                                }
-                              },
-                              child: Container(
-                                width: 160,
-                                height: 210,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  color: Color(0xFFD5D5D5),
+                                      color: Colors.grey,
+                                      child: Text(result![index].text),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                      ),
                     )
                   ],
                 ),
@@ -212,20 +256,31 @@ class _SendManDemoState extends State<SendManDemo> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: BaseAppBar(
-        appBar: AppBar(),
-        center: true,
-      ),
-      body: WillPopScope(
-        onWillPop: onWillPop,
-        child: ConstrainedBox(
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+
+        final shouldExit = CustomToast.showExitToast(); // context 제거
+        if (shouldExit) {
+          SystemNavigator.pop(); // 앱 즉시 종료
+        }
+      },
+      child: Scaffold(
+        appBar: (sessionGoogle.username != "anonymous")
+            ? BaseAppBar(
+                appBar: AppBar(),
+                center: true,
+              )
+            : null,
+        body: ConstrainedBox(
           constraints: const BoxConstraints.expand(),
           child: _buildBody(sessionGoogle),
         ),
+        drawer:
+            (sessionGoogle.username != "anonymous") ? const BaseDrawer() : null,
+        backgroundColor: Colors.white,
       ),
-      drawer: const BaseDrawer(),
-      backgroundColor: Colors.white,
     );
   }
 }
