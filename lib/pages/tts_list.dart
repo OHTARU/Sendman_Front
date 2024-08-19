@@ -150,7 +150,7 @@ class PostItem extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => TtsDetail(recognizedText: text),
+            builder: (context) => TtsDetail(recognizedText: text,date: createdDate),
           ),
         );
       },

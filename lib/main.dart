@@ -159,8 +159,8 @@ class _SendManDemoState extends State<SendManDemo> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) => TtsDetail(
-                                                  recognizedText:
-                                                      result![index].text)));
+                                                  date: result![index].createdDate,
+                                                  recognizedText: result![index].text)));
                                     },
                                     child: Container(
                                       width: 160,

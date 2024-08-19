@@ -215,7 +215,6 @@ class TextToSpeechState extends State<TextToSpeech> {
                   margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                   child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        elevation: 20,
                         shadowColor: Colors.black54,
                         backgroundColor:
                             isPlaying ? const Color(0xff293e7c) : Colors.red,
@@ -223,7 +222,7 @@ class TextToSpeechState extends State<TextToSpeech> {
                         surfaceTintColor: Colors.black,
                         foregroundColor: Colors.white54,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 150, vertical: 18),
+                            horizontal: 100, vertical: 18),
                         alignment: const FractionalOffset(1, 1),
                       ),
                       onPressed: _newVoiceText != null && _newVoiceText != ""
