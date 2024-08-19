@@ -137,6 +137,7 @@ class PostItem extends StatelessWidget {
                       fontSize: 20,
                       fontWeight: FontWeight.bold),
                   overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
                 ),
               ),
               (type == 'STT')
@@ -150,7 +151,8 @@ class PostItem extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => TtsDetail(recognizedText: text,date: createdDate),
+            builder: (context) =>
+                TtsDetail(recognizedText: text, date: createdDate),
           ),
         );
       },

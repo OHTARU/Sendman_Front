@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/widgets/app_bar.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter/services.dart'; // Clipboard 관련 클래스 포함
@@ -8,7 +7,8 @@ class TtsDetail extends StatefulWidget {
   final String recognizedText; // 다른 파일에서 전달받은 텍스트
   final String date;
 
-  const TtsDetail({super.key, required this.recognizedText,required this.date});
+  const TtsDetail(
+      {super.key, required this.recognizedText, required this.date});
 
   @override
   TtsDetailState createState() => TtsDetailState();
@@ -107,7 +107,8 @@ class TtsDetailState extends State<TtsDetail> {
       );
     }
   }
-  void _backpage(){
+
+  void _backpage() {
     Navigator.pop(context);
   }
 
@@ -121,92 +122,109 @@ class TtsDetailState extends State<TtsDetail> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-     home: Scaffold(
-      backgroundColor: Colors.white,
-        body: ConstrainedBox(
-            constraints: const BoxConstraints.expand(),
-            child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: EdgeInsetsDirectional.only(top: 15),
-                  child:
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: IconButton(
-                            icon: const Icon(Icons.arrow_back,size: 35,),
-                            onPressed: _backpage,
+        home: Scaffold(
+            backgroundColor: Colors.white,
+            body: ConstrainedBox(
+              constraints: const BoxConstraints.expand(),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsetsDirectional.only(top: 15),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.arrow_back,
+                                size: 35,
+                              ),
+                              onPressed: _backpage,
+                            ),
                           ),
-                        ),
-                        Text('인식결과',style: TextStyle(fontSize: 30),),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: IconButton(
-                            icon: const Icon(Icons.content_copy,size: 35,),
-                            onPressed: _copyToClipboard,
-                            tooltip: '클립보드에 복사',
+                          Text(
+                            '인식결과',
+                            style: TextStyle(fontSize: 30),
                           ),
-                        ),
-                      ],
-                    ),
-                ),
-                // 인식된 텍스트가 있으면 텍스트를 표시하고, 없으면 '텍스트 추출 오류' 표시
-                Container(
-                  width: 350,
-                  height: 500,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFF9F9F9), // 배경색
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        widget.recognizedText.isNotEmpty
-                            ? widget.recognizedText
-                            : '텍스트 추출 오류',
-                        style: TextStyle(
-                          fontSize: 34, // 텍스트 크기
-                          color: widget.recognizedText.isNotEmpty
-                              ? Colors.black87 // 텍스트가 있을 경우 검정색
-                              : Colors.grey, // 텍스트가 없을 경우 회색
-                          fontWeight: FontWeight.w600
-                        ),
-                        textAlign: TextAlign.center,
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.content_copy,
+                                size: 35,
+                              ),
+                              onPressed: _copyToClipboard,
+                              tooltip: '클립보드에 복사',
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    // 인식된 텍스트가 있으면 텍스트를 표시하고, 없으면 '텍스트 추출 오류' 표시
+                    Container(
+                      width: 350,
+                      height: 500,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF9F9F9), // 배경색
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal, // 가로 방향 스크롤 활성화
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical, // 세로 방향 스크롤 활성화
+                              child: Center(
+                                child: Text(
+                                  widget.recognizedText.isNotEmpty
+                                      ? widget.recognizedText
+                                      : '텍스트 추출 오류',
+                                  style: TextStyle(
+                                      fontSize: 34, // 텍스트 크기
+                                      color: widget.recognizedText.isNotEmpty
+                                          ? Colors.black87 // 텍스트가 있을 경우 검정색
+                                          : Colors.grey, // 텍스트가 없을 경우 회색
+                                      fontWeight: FontWeight.w600),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Text(widget.date,
+                        style: TextStyle(fontSize: 30, color: Colors.grey)),
+                    // 재생 및 정지 버튼
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 100, vertical: 18),
+                        alignment: const FractionalOffset(1, 1),
+                        backgroundColor: isPlaying ? Colors.grey : Colors.red,
+                      ),
+                      onPressed: widget.recognizedText.isNotEmpty
+                          ? (isPlaying ? _stop : _speak) // 상태에 따라 재생 또는 정지
+                          : null,
+                      child: Icon(
+                        isPlaying
+                            ? Icons.stop
+                            : Icons.play_arrow, // 상태에 따른 아이콘 변경
+                        size: 40,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(widget.date,style: TextStyle(fontSize: 30,color: Colors.grey)),
-                // 재생 및 정지 버튼
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 100, vertical: 18),
-                    alignment: const FractionalOffset(1, 1),
-                    backgroundColor: isPlaying ? Colors.grey : Colors.red,
-                  ),
-                  onPressed: widget.recognizedText.isNotEmpty
-                      ? (isPlaying ? _stop : _speak) // 상태에 따라 재생 또는 정지
-                      : null,
-                  child: Icon(
-                    isPlaying ? Icons.stop : Icons.play_arrow, // 상태에 따른 아이콘 변경
-                    size: 40,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-        drawer: const BaseDrawer())
-    );
+            drawer: const BaseDrawer()));
   }
 }
