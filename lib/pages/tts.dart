@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/widgets/app_bar.dart';
 import 'package:flutter_application_1/src/session.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -189,7 +190,7 @@ class TextToSpeechState extends State<TextToSpeech> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: scaffoldBackground,
         appBar: BaseAppBar(
           appBar: AppBar(),
           center: true,
@@ -220,7 +221,7 @@ class TextToSpeechState extends State<TextToSpeech> {
                             isPlaying ? const Color(0xff293e7c) : Colors.red,
                         iconColor: Colors.white,
                         surfaceTintColor: Colors.black,
-                        foregroundColor: Colors.white54,
+                        foregroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 100, vertical: 18),
                         alignment: const FractionalOffset(1, 1),

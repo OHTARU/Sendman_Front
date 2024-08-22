@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/main.dart';
 
 class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -14,7 +13,7 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-        backgroundColor: mainWhiteColor,
+        backgroundColor: Colors.white,
         centerTitle: center,
         title: IconButton(
           onPressed: () {

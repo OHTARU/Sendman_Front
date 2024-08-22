@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/widgets/swatch.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:path_provider/path_provider.dart';
@@ -174,8 +175,6 @@ class _SttPage extends State<SttPage> {
           _isRecording = false;
         });
       }
-      // file = File(filePath.toString());
-      // print(file.toString());
     } catch (e) {
       print("녹음 중지 오류: $e");
     }
@@ -197,31 +196,34 @@ class _SttPage extends State<SttPage> {
             const SizedBox(
               height: 60,
             ),
-            Text(
-              _isRecording ? (isSend ? "분석 중 입니다!" : "녹음 중") : '음성 녹음을 시작해주세요',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-            )
+            Container(
+              alignment: Alignment.topCenter,
+              padding:
+                  const EdgeInsets.only(top: 25.0, left: 25.0, right: 25.0),
+              child: TextField(
+                textAlign: TextAlign.center,
+                controller: TextEditingController(text: result),
+                style: const TextStyle(fontSize: 20, color: Colors.black),
+                enabled: false,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
           ],
         ),
         Swatch(
           stopWatchTimer: _stopWatchTimer,
           isMinutes: _isMinutes,
         ),
-        Container(
-            alignment: Alignment.topCenter,
-            padding: const EdgeInsets.only(top: 25.0, left: 25.0, right: 25.0),
-            child: TextField(
-              controller: TextEditingController(text: result),
-              style: const TextStyle(fontSize: 20, color: Colors.black),
-              scrollController: ScrollController(),
-              maxLines: 15,
-              minLines: 6,
-              enabled: false,
-            )),
         Column(
           children: [
+            Text(
+              _isRecording ? (isSend ? "분석 중 입니다!" : "녹음 중") : '음성 녹음을 시작해주세요',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+            ),
             Container(
-              margin: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+              margin: const EdgeInsets.fromLTRB(20, 20, 20, 40),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   elevation: 25,
@@ -264,7 +266,7 @@ class _SttPage extends State<SttPage> {
         child: _buildBody(sessionGoogle),
       ),
       drawer: const BaseDrawer(),
-      backgroundColor: Colors.white,
+      backgroundColor: scaffoldBackground,
     );
   }
 }

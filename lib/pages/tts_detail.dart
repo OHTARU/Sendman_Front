@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter/services.dart'; // Clipboard 관련 클래스 포함
@@ -123,7 +124,7 @@ class TtsDetailState extends State<TtsDetail> {
   Widget build(BuildContext context) {
     return MaterialApp(
         home: Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: scaffoldBackground,
             body: ConstrainedBox(
               constraints: const BoxConstraints.expand(),
               child: Padding(
@@ -171,7 +172,7 @@ class TtsDetailState extends State<TtsDetail> {
                       height: 500,
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Color(0xFFF9F9F9), // 배경색
+                        color: Colors.white, // 배경색
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: SingleChildScrollView(
@@ -183,14 +184,17 @@ class TtsDetailState extends State<TtsDetail> {
                             child: Text(
                               widget.recognizedText.isNotEmpty
                                   ? widget.recognizedText
-                                  : '텍스트 추출 오류',
+                                  : '목소리 녹음이 되지 않았습니다',
                               style: TextStyle(
-                                  fontSize: 34, // 텍스트 크기
-                                  color: widget.recognizedText.isNotEmpty
-                                      ? Colors.black87
-                                      : Colors.grey, // 색상
-                                  fontWeight: FontWeight.w600 // 폰트 두께
-                                  ),
+                                fontSize: 24, // 텍스트 크기
+                                color: widget.recognizedText.isNotEmpty
+                                    ? Colors.black87
+                                    : Colors.grey, // 색상
+                                fontWeight: FontWeight.w400, // 폰트 두께
+                                letterSpacing: 0.5,
+                                height: 1.4,
+                              ),
+
                               textAlign: TextAlign.center, // 텍스트 중앙 정렬
                             ),
                           ),

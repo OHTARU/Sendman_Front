@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/pages/tts_detail.dart';
 import 'dart:convert';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -131,7 +132,7 @@ class PostItem extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  (text.trim().isEmpty) ? "제목 없음" : text,
+                  (text.trim().isEmpty) ? "음성 녹음이 제대로 x" : text,
                   style: const TextStyle(
                       color: Colors.black,
                       fontSize: 20,
@@ -147,6 +148,7 @@ class PostItem extends StatelessWidget {
           ),
         ),
       ),
+      hoverColor: scaffoldBackground,
       onTap: () {
         Navigator.push(
           context,

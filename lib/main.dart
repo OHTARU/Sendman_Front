@@ -159,8 +159,10 @@ class _SendManDemoState extends State<SendManDemo> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) => TtsDetail(
-                                                  date: result![index].createdDate,
-                                                  recognizedText: result![index].text)));
+                                                  date: result![index]
+                                                      .createdDate,
+                                                  recognizedText:
+                                                      result![index].text)));
                                     },
                                     child: Container(
                                       width: 160,
@@ -242,7 +244,7 @@ class _SendManDemoState extends State<SendManDemo> {
             children: [
               Icon(
                 icon,
-                color: Colors.black,
+                color: Colors.white,
                 size: 30,
               ),
               Text(title,
@@ -250,7 +252,7 @@ class _SendManDemoState extends State<SendManDemo> {
                   style: const TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 20,
-                      color: Colors.black)),
+                      color: Colors.white)),
             ],
           ),
         ],
@@ -305,7 +307,7 @@ class _SendManDemoState extends State<SendManDemo> {
         ),
         drawer:
             (sessionGoogle.username != "anonymous") ? const BaseDrawer() : null,
-        backgroundColor: Colors.white,
+        backgroundColor: scaffoldBackground,
       ),
     );
   }
