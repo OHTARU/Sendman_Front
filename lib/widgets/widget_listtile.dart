@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/colors/colors.dart';
 
 GestureDetector buildListTile(BuildContext context, IconData icon, String title,
-    Widget destinationPage, Color backTileColor) {
+    Widget? destinationPage, Color backTileColor) {
   return GestureDetector(
     onTap: () {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => destinationPage));
+      if (destinationPage != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => destinationPage),
+        );
+      }
     },
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 15),
@@ -28,7 +32,7 @@ GestureDetector buildListTile(BuildContext context, IconData icon, String title,
                 color: Colors.white,
                 size: 30,
               ),
-              SizedBox(height: 5), // 아이콘과 텍스트 사이의 공간
+              SizedBox(height: 5),
               Text(
                 title,
                 textAlign: TextAlign.start,

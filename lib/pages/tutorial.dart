@@ -60,26 +60,32 @@ class _TutorialPageState extends State<TutorialPage> {
                         Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            buildListTile(context, Icons.mic, '음성',
-                                const SttPage(), listTile1),
+                            Container(
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      width: 2.5,
+                                      color: Color.fromARGB(255, 255, 0, 0))),
+                              child: buildListTile(context, Icons.mic, '음성',
+                                  const SttPage(), listTile1),
+                            ),
                             Divider(
                               color: Colors.black26,
-                              height: 1.2,
+                              height: 0.3,
                             ),
                             buildListTile(context, Icons.text_format, '텍스트',
-                                const TextToSpeech(), listTile2),
+                                null, listTile2),
                             Divider(
                               color: Colors.black26,
                               height: 1.2,
                             ),
-                            buildListTile(context, Icons.image, '사진',
-                                const CameraUI(), listTile3),
+                            buildListTile(
+                                context, Icons.image, '사진', null, listTile3),
                             Divider(
                               color: Colors.black26,
                               height: 1.2,
                             ),
                             buildListTile(context, Icons.attach_file,
-                                '사진텍스트 리스트', const TtsList(), listTile4),
+                                '사진텍스트 리스트', null, listTile4),
                           ],
                         ),
                         SizedBox(height: 40),
