@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/pages/tts_detail.dart';
+import 'package:flutter_application_1/src/server_uri.dart';
 import 'dart:convert';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:http/http.dart' as http;
@@ -38,7 +39,7 @@ class TtsListState extends State<TtsList> {
   Future<void> _fetchPage(int pageKey, [String? token]) async {
     token ??= await GetToken().readToken();
     // var url = Uri.parse("http://13.125.54.112:8080/list?page=$pageKey");
-    var url = Uri.parse("http://bak10172.asuscomm.com");
+    var url = Uri.parse(serverUri+"/list?page=$pageKey");
 
     Map<String, String> headers = {"Authorization": "Bearer $token"};
     var response = await http.get(url, headers: headers);
