@@ -25,6 +25,12 @@ const Color containerBackgroundColor = Color(0xFFd4d8e4);
 const Color BackgroundColor = Color(0xFFe9edf7);
 const Color scaffoldBackground = Color(0xfff4f5f8);
 const Color activatedRedButton = Color(0xff910000);
+const Color tutorialText = Color(0xfff4f5f8);
+const Color gradientColor = Color(0xff2e3b55);
+const Color gradientColor1 = Color(0xFF2E3B55);
+const Color gradientColor2 = Color(0xFF3C4A75);
+const Color gradientColor3 = Color(0xFF4D5B94);
+const Color gradientColor4 = Color(0xFF5D6EA9);
 
 const TextStyle textAver = TextStyle(
   fontSize: 24, // 텍스트 크기

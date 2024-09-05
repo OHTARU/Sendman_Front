@@ -17,6 +17,7 @@ import 'package:flutter_application_1/widgets/custom_toast.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
 import 'package:flutter_application_1/src/session.dart';
 import 'package:flutter_application_1/widgets/logo_screen.dart';
+import 'package:flutter_application_1/widgets/widget_listtile.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
@@ -243,39 +244,6 @@ class _SendManDemoState extends State<SendManDemo> {
             ],
           );
         }
-      },
-    );
-  }
-
-  ListTile buildListTile(BuildContext context, IconData icon, String title,
-      Widget destinationPage, Color backTileColor) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: 15),
-      tileColor: backTileColor,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                color: Colors.white,
-                size: 30,
-              ),
-              Text(title,
-                  textAlign: TextAlign.start,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 20,
-                      color: Colors.white)),
-            ],
-          ),
-        ],
-      ),
-      onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => destinationPage));
       },
     );
   }

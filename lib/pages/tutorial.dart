@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/colors/colors.dart';
 import 'package:flutter_application_1/main.dart';
+import 'package:flutter_application_1/pages/camera_ui.dart';
+import 'package:flutter_application_1/pages/stt.dart';
+import 'package:flutter_application_1/pages/tts.dart';
+import 'package:flutter_application_1/pages/tts_list.dart';
+import 'package:flutter_application_1/widgets/widget_listtile.dart';
 
 class TutorialPage extends StatefulWidget {
   const TutorialPage({super.key});
@@ -9,183 +15,155 @@ class TutorialPage extends StatefulWidget {
 }
 
 class _TutorialPageState extends State<TutorialPage> {
+  final PageController _pageController = PageController();
   int _currentPage = 0;
 
   final List<Map<String, dynamic>> _pages = [
     {
-      "title": "온보딩1",
-      "message": "안녕하세요? 샌드맨이에요",
+      "message": "안녕하세요? \n샌드맨이에요",
       "image": "assets/images/SendManIcon.png",
     },
     {
-      "title": "온보딩2",
-      "message": "여러분의 원활한 소통을 도와드릴게요",
+      "message": "여러분의 원활한 \n소통을 도와드릴게요",
       "image": "assets/images/SendManIcon.png",
     },
     {
-      "title": "스플래쉬",
-      "message": "버튼을 터치해서 소통을 시작해보세요!",
+      "message": "버튼을 터치해서 \n소통을 시작해보세요!",
       "image": "assets/images/SendManIcon.png",
-      "buttons": [
-        {"icon": Icons.mic, "label": "음성"},
-        {"icon": Icons.text_fields, "label": "텍스트"},
-        {"icon": Icons.image, "label": "사진"},
-        {"icon": Icons.attachment, "label": "사진텍스트 리스트"},
-      ],
     },
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      backgroundColor: Colors.white,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Visibility(
-            visible: _currentPage == 0,
-            child: buildPage(context, 0),
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (int page) {
+                setState(() {
+                  _currentPage = page;
+                });
+              },
+              itemCount: _pages.length,
+              itemBuilder: (context, index) {
+                if (index == 2) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(height: 40),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            buildListTile(context, Icons.mic, '음성',
+                                const SttPage(), listTile1),
+                            Divider(
+                              color: Colors.black26,
+                              height: 1.2,
+                            ),
+                            buildListTile(context, Icons.text_format, '텍스트',
+                                const TextToSpeech(), listTile2),
+                            Divider(
+                              color: Colors.black26,
+                              height: 1.2,
+                            ),
+                            buildListTile(context, Icons.image, '사진',
+                                const CameraUI(), listTile3),
+                            Divider(
+                              color: Colors.black26,
+                              height: 1.2,
+                            ),
+                            buildListTile(context, Icons.attach_file,
+                                '사진텍스트 리스트', const TtsList(), listTile4),
+                          ],
+                        ),
+                        SizedBox(height: 40),
+                        _buildSpeechBubble(_pages[index]["message"]!),
+                        SizedBox(height: 20),
+                        Image.asset(
+                          _pages[index]["image"]!,
+                          height: 100,
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildSpeechBubble(_pages[index]["message"]!),
+                        SizedBox(height: 40),
+                        Image.asset(
+                          _pages[index]["image"]!,
+                          height: 100,
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+            ),
           ),
-          Visibility(
-            visible: _currentPage == 1,
-            child: buildPage(context, 1),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(_pages.length, (index) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                width: _currentPage == index ? 12 : 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: _currentPage == index ? mainThemeColor : Colors.grey,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              );
+            }),
           ),
-          Visibility(
-            visible: _currentPage == 2,
-            child: buildPageWithButtons(context, 2),
-          ),
-        ],
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            TextButton(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: TextButton(
               onPressed: () {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => SendManDemo()),
                 );
               },
-              child: Text(
-                '설명 건너뛰기',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            IconButton(
-              icon: Icon(
-                _currentPage < _pages.length - 1
-                    ? Icons.arrow_forward
-                    : Icons.check,
-                color: Colors.blue,
-              ),
-              onPressed: () {
-                setState(() {
-                  if (_currentPage < _pages.length - 1) {
-                    _currentPage++;
-                  } else {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => SendManDemo()),
-                    );
-                  }
-                });
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget buildPage(BuildContext context, int index) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            _pages[index]["title"]!,
-            style: TextStyle(
-              fontSize: 24,
-              color: Colors.grey,
-            ),
-          ),
-          SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              _pages[index]["message"]!,
-              style: TextStyle(fontSize: 16),
-            ),
-          ),
-          SizedBox(height: 20),
-          Image.asset(
-            _pages[index]["image"]!,
-            height: 100,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildPageWithButtons(BuildContext context, int index) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            _pages[index]["title"]!,
-            style: TextStyle(
-              fontSize: 24,
-              color: Colors.grey,
-            ),
-          ),
-          SizedBox(height: 20),
-          Column(
-            children: _pages[index]["buttons"].map<Widget>((button) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    //아 뭐 넣어야하냐 할거 개많네 진짜
-                  },
-                  icon: Icon(button["icon"]),
-                  label: Text(button["label"]),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade100,
-                    minimumSize: Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+              child: Container(
+                margin: EdgeInsets.symmetric(vertical: 14),
+                child: Text(
+                  '설명 건너뛰기',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
                   ),
                 ),
-              );
-            }).toList(),
-          ),
-          SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: Text(
-              _pages[index]["message"]!,
-              style: TextStyle(fontSize: 16),
-            ),
-          ),
-          SizedBox(height: 20),
-          Image.asset(
-            _pages[index]["image"]!,
-            height: 100,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSpeechBubble(String message) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
