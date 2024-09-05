@@ -9,6 +9,7 @@ import 'package:flutter_application_1/pages/stt.dart';
 import 'package:flutter_application_1/pages/tts.dart';
 import 'package:flutter_application_1/pages/tts_detail.dart';
 import 'package:flutter_application_1/pages/tts_list.dart';
+import 'package:flutter_application_1/pages/tutorial.dart';
 import 'package:flutter_application_1/src/get_token.dart';
 import 'package:flutter_application_1/src/tts_post_dto.dart';
 import 'package:flutter_application_1/widgets/custom_toast.dart';
@@ -34,7 +35,7 @@ void main() async {
     const MaterialApp(
       title: '이게 왜 진짜 앱?',
       debugShowCheckedModeBanner: false,
-      home: SendManDemo(),
+      home: TutorialPage(),
     ),
   );
 }
@@ -58,15 +59,19 @@ class _SendManDemoState extends State<SendManDemo> {
   }
 
   void initialization() async {
-    await sessionGoogle.initialize();
-    setState(() {
-      sessionGoogle;
-    });
-    await _fetchPage();
-    print('이제 1초면 이동');
-    await Future.delayed(const Duration(seconds: 1));
-    print('출력');
-    FlutterNativeSplash.remove();
+    try {
+      await sessionGoogle.initialize();
+      setState(() {
+        sessionGoogle;
+      });
+      await _fetchPage();
+      print('이제 1초면 이동');
+      await Future.delayed(const Duration(seconds: 1));
+      print('출력');
+      FlutterNativeSplash.remove();
+    } catch (e) {
+      print('초기화 에러$e');
+    }
   }
 
   Future<void> writeToken(String token) async {
@@ -89,7 +94,7 @@ class _SendManDemoState extends State<SendManDemo> {
 
   Future<void> _fetchPage() async {
     String token = await GetToken().readToken();
-    var url = Uri.parse("http://13.125.54.112:8080/list");
+    var url = Uri.parse("http://bak10172.asuscomm.com");
 
     Map<String, String> headers = {"Authorization": "Bearer $token"};
     var response = await http.get(url, headers: headers);
@@ -289,9 +294,9 @@ class _SendManDemoState extends State<SendManDemo> {
       onPopInvoked: (didPop) async {
         if (didPop) return;
 
-        final shouldExit = CustomToast.showExitToast(); // context 제거
+        final shouldExit = CustomToast.showExitToast();
         if (shouldExit) {
-          SystemNavigator.pop(); // 앱 즉시 종료
+          SystemNavigator.pop();
         }
       },
       child: Scaffold(
