@@ -91,9 +91,17 @@ class _TutorialPageState extends State<TutorialPage> {
                         SizedBox(height: 40),
                         _buildSpeechBubble(_pages[index]["message"]!),
                         SizedBox(height: 20),
-                        Image.asset(
-                          _pages[index]["image"]!,
-                          height: 100,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(left: 30),
+                              child: Image.asset(
+                                _pages[index]["image"]!,
+                                height: 100,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
