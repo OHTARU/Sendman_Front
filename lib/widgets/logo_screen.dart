@@ -15,7 +15,7 @@ Widget buildLogoScreen() {
         width: 190,
       ),
       const SizedBox(
-        height: 40,
+        height: 55,
       ),
     ],
   );

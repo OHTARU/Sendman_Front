@@ -11,6 +11,7 @@ import 'package:flutter_application_1/pages/tts_detail.dart';
 import 'package:flutter_application_1/pages/tts_list.dart';
 import 'package:flutter_application_1/pages/tutorial.dart';
 import 'package:flutter_application_1/src/get_token.dart';
+import 'package:flutter_application_1/src/server_uri.dart';
 import 'package:flutter_application_1/src/tts_post_dto.dart';
 import 'package:flutter_application_1/widgets/custom_toast.dart';
 import 'package:flutter_application_1/widgets/drawer.dart';
@@ -35,7 +36,7 @@ void main() async {
     const MaterialApp(
       title: '이게 왜 진짜 앱?',
       debugShowCheckedModeBanner: false,
-      home: TutorialPage(),
+      home: SendManDemo(),
     ),
   );
 }
@@ -94,11 +95,11 @@ class _SendManDemoState extends State<SendManDemo> {
 
   Future<void> _fetchPage() async {
     String token = await GetToken().readToken();
-    var url = Uri.parse("http://bak10172.asuscomm.com");
+    var url = Uri.parse(serverUri + "/list");
 
     Map<String, String> headers = {"Authorization": "Bearer $token"};
     var response = await http.get(url, headers: headers);
-
+    print(response);
     if (response.statusCode >= 200 && response.statusCode < 300) {
       Map<String, dynamic> responseList =
           jsonDecode(utf8.decode(response.bodyBytes));
@@ -228,7 +229,17 @@ class _SendManDemoState extends State<SendManDemo> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               buildLogoScreen(),
-              buildSignInButton(onPressed: _handleSignIn)
+              buildSignInButton(onPressed: _handleSignIn),
+              TextButton(
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => TutorialPage())),
+                  child: Text(
+                    '앱을 먼저 사용해 볼래요',
+                    style: TextStyle(
+                        color: listTile11,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700),
+                  ))
             ],
           );
         }
