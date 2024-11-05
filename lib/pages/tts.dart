@@ -195,46 +195,42 @@ class TextToSpeechState extends State<TextToSpeech> {
           appBar: AppBar(),
           center: true,
         ),
-        body: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 200,
-              ),
-              _inputSection(),
-              // _futureBuilder(),
-              const SizedBox(
-                height: 260,
-              ),
-              Text(
-                isPlaying ? '재생 중' : '입력 후 하단 버튼을 눌러 재생',
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.w100),
-              ),
-              Container(
-                  margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                  child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shadowColor: Colors.black54,
-                        backgroundColor:
-                            isPlaying ? const Color(0xff293e7c) : Colors.red,
-                        iconColor: Colors.white,
-                        surfaceTintColor: Colors.black,
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 100, vertical: 18),
-                        alignment: const FractionalOffset(1, 1),
-                      ),
-                      onPressed: _newVoiceText != null && _newVoiceText != ""
-                          ? (isPlaying ? _stop : _speak)
-                          : null,
-                      child: Icon(
-                        isPlaying ? Icons.stop : Icons.play_arrow,
-                        size: 40,
-                      ))),
-            ],
-          ),
+        body: Column(
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.width * 0.3,
+            ),
+            _inputSection(),
+            // _futureBuilder(),
+            const SizedBox(
+              height: 260,
+            ),
+            Text(
+              isPlaying ? '재생 중' : '입력 후 하단 버튼을 눌러 재생',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w100),
+            ),
+            Container(
+                margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shadowColor: Colors.black54,
+                      backgroundColor:
+                          isPlaying ? const Color(0xff293e7c) : Colors.red,
+                      iconColor: Colors.white,
+                      surfaceTintColor: Colors.black,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 100, vertical: 18),
+                      alignment: const FractionalOffset(1, 1),
+                    ),
+                    onPressed: _newVoiceText != null && _newVoiceText != ""
+                        ? (isPlaying ? _stop : _speak)
+                        : null,
+                    child: Icon(
+                      isPlaying ? Icons.stop : Icons.play_arrow,
+                      size: 40,
+                    ))),
+          ],
         ),
         drawer: const BaseDrawer(),
       ),

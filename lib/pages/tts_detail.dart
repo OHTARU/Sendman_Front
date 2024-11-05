@@ -175,31 +175,30 @@ class TtsDetailState extends State<TtsDetail> {
                         color: Colors.white, // 배경색
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal, // 가로 방향 스크롤 활성화
-                        child: Container(
-                          width: 350, // 중요: 가로 스크롤 내부 컨테이너의 너비 지정
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical, // 세로 방향 스크롤 활성화
-                            child: Text(
-                              widget.recognizedText.isNotEmpty
-                                  ? widget.recognizedText
-                                  : '목소리 녹음이 되지 않았습니다',
-                              style: TextStyle(
-                                fontSize: 24, // 텍스트 크기
-                                color: widget.recognizedText.isNotEmpty
-                                    ? Colors.black87
-                                    : Colors.grey, // 색상
-                                fontWeight: FontWeight.w400, // 폰트 두께
-                                letterSpacing: 0.5,
-                                height: 1.4,
-                              ),
-
-                              textAlign: TextAlign.center, // 텍스트 중앙 정렬
+                      child: Container(
+                        width: MediaQuery.of(context).size.width *
+                            0.8, // 중요: 가로 스크롤 내부 컨테이너의 너비 지정
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical, // 세로 방향 스크롤 활성화
+                          child: Text(
+                            widget.recognizedText.isNotEmpty
+                                ? widget.recognizedText
+                                : '목소리 녹음이\n되지 않았습니다',
+                            style: TextStyle(
+                              fontSize: 25, // 텍스트 크기
+                              color: widget.recognizedText.isNotEmpty
+                                  ? Colors.black87
+                                  : Colors.grey, // 색상
+                              fontWeight: FontWeight.w400, // 폰트 두께
+                              letterSpacing: 0.5,
+                              height: MediaQuery.of(context).size.width * 0.006,
                             ),
+
+                            textAlign: TextAlign.center, // 텍스트 중앙 정렬
                           ),
                         ),
                       ),
+                      //SingleChildScrollView
                     ),
                     Text(widget.date,
                         style: TextStyle(fontSize: 30, color: Colors.grey)),

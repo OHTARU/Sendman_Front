@@ -129,101 +129,107 @@ class _SendManDemoState extends State<SendManDemo> {
     return Builder(
       builder: (BuildContext context) {
         if (user.username != "anonymous") {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 40, 0, 40),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '최근 대화',
-                      style:
-                          TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 5,
-                    ),
-                    const SizedBox(height: 23),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: (textNum == 0)
-                          ? Text("최근 대화가 없습니다!",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500, fontSize: 20))
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: List.generate(
-                                (textNum == 0) ? 0 : textNum,
-                                (index) => Padding(
-                                  padding: const EdgeInsets.only(right: 20),
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => TtsDetail(
-                                                  date: result![index]
-                                                      .createdDate,
-                                                  recognizedText:
-                                                      result![index].text)));
-                                    },
-                                    child: Container(
-                                      width: 160,
-                                      height: 210,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        color: containerBackgroundColor,
-                                      ),
-                                      child: Padding(
-                                        padding: EdgeInsets.all(10),
-                                        child: Text(
-                                          result![index].text,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 20),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 5,
+          return SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              // 이쪽 컬럼 화면 오버플로우 날수 있음 가능성 + 수정 필요
+              //오버플로우 수정 + 화면 비율 맞춰야함;
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 40, 0, 40),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '최근 대화',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 20),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 5,
+                      ),
+                      const SizedBox(height: 23),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: (textNum == 0)
+                            ? Text("최근 대화가 없습니다!",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500, fontSize: 20))
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: List.generate(
+                                  (textNum == 0) ? 0 : textNum,
+                                  (index) => Padding(
+                                    padding: const EdgeInsets.only(right: 20),
+                                    child: InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => TtsDetail(
+                                                    date: result![index]
+                                                        .createdDate,
+                                                    recognizedText:
+                                                        result![index].text)));
+                                      },
+                                      child: Container(
+                                        width: 160,
+                                        height: 210,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          color: containerBackgroundColor,
+                                        ),
+                                        child: Padding(
+                                          padding: EdgeInsets.all(10),
+                                          child: Text(
+                                            result![index].text,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 20),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 5,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                    )
+                      )
+                    ],
+                  ),
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    buildListTile(
+                        context, Icons.mic, '음성', const SttPage(), listTile1),
+                    Divider(
+                      color: Colors.black26,
+                      height: 1.2,
+                    ),
+                    buildListTile(context, Icons.text_format, '텍스트',
+                        const TextToSpeech(), listTile2),
+                    Divider(
+                      color: Colors.black26,
+                      height: 1.2,
+                    ),
+                    buildListTile(context, Icons.image, '사진', const CameraUI(),
+                        listTile3),
+                    Divider(
+                      color: Colors.black26,
+                      height: 1.2,
+                    ),
+                    buildListTile(context, Icons.attach_file, '사진텍스트 리스트',
+                        const TtsList(), listTile4),
                   ],
                 ),
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  buildListTile(
-                      context, Icons.mic, '음성', const SttPage(), listTile1),
-                  Divider(
-                    color: Colors.black26,
-                    height: 1.2,
-                  ),
-                  buildListTile(context, Icons.text_format, '텍스트',
-                      const TextToSpeech(), listTile2),
-                  Divider(
-                    color: Colors.black26,
-                    height: 1.2,
-                  ),
-                  buildListTile(
-                      context, Icons.image, '사진', const CameraUI(), listTile3),
-                  Divider(
-                    color: Colors.black26,
-                    height: 1.2,
-                  ),
-                  buildListTile(context, Icons.attach_file, '사진텍스트 리스트',
-                      const TtsList(), listTile4),
-                ],
-              ),
-            ],
+              ],
+            ),
           );
         } else {
           return Column(
