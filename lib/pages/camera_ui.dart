@@ -74,7 +74,6 @@ class _CameraUIState extends State<CameraUI> {
       _ocrResult = await _sendImageToOCR(imageFile);
 
       if (_ocrResult != null) {
-        await _sendTextToServer(_ocrResult!); // OCR 결과를 백엔드로 전송
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("사진 안에 있는 텍스트를 저장하였습니다!")),
         );
@@ -92,54 +91,28 @@ class _CameraUIState extends State<CameraUI> {
   }
 
   Future<String?> _sendImageToOCR(File image) async {
-    const String apiKey = 'AIzaSyAtNXwq7_KtXWDop3ZV_WGryDfmcTTeZaM';
-    final Uri url = Uri.parse(
-        'https://vision.googleapis.com/v1/images:annotate?key=$apiKey');
-
-    final bytes = await image.readAsBytes();
-    final base64Image = base64Encode(bytes);
-
-    final Map<String, dynamic> requestBody = {
-      "requests": [
-        {
-          "image": {"content": base64Image},
-          "features": [
-            {"type": "TEXT_DETECTION", "maxResults": 1}
-          ]
-        }
-      ]
+    String token = await _getToken.readToken();
+    final Uri url = Uri.parse(serverUri+"/tts/save");
+    Map<String, String> headers = {
+      "Authorization": "Bearer ${token}"
     };
 
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(requestBody),
-    );
+    var request = http.MultipartRequest('POST', url)..headers.addAll(headers);
 
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      return jsonResponse['responses'][0]['fullTextAnnotation']['text'];
-    } else {
-      return 'Error: ${response.statusCode} ${response.body}';
-    }
-  }
+    request.files.add(await http.MultipartFile.fromPath(
+      'file', // 서버에서 파라미터명 확인
+      image.path,
+    ));
 
-  Future<void> _sendTextToServer(String text) async {
-    String token = await _getToken.readToken();
-    final Uri url = Uri.parse("$serverUri/tts/save?text=$text"); // 백엔드 서버의 API
-    final response = await http.post(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
-      },
-    );
+    var response = await request.send();
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      print("Text sent to server successfully");
+      var res = jsonDecode(utf8.decode(await response.stream.single));
+
+      return res['data']['result'].toString();
     } else {
-      throw Exception(
-          "Failed to send text. Status code: ${response.statusCode}");
+      var res = jsonDecode(utf8.decode(await response.stream.single));
+      return 'Error: ${response.statusCode} ${res}';
     }
   }
 
@@ -165,7 +138,6 @@ class _CameraUIState extends State<CameraUI> {
         _ocrResult = await _sendImageToOCR(imageFile);
 
         if (_ocrResult != null) {
-          await _sendTextToServer(_ocrResult!); // OCR 결과를 백엔드로 전송
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("사진 안에 있는 텍스트를 저장하였습니다!")),
           );
