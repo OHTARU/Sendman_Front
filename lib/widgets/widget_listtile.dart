@@ -10,7 +10,8 @@ GestureDetector buildListTile(BuildContext context, IconData icon, String title,
           context,
           MaterialPageRoute(builder: (context) => destinationPage),
         );
-      }
+      } else
+        ();
     },
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 15),
